@@ -33,6 +33,21 @@ function saveDefensesToStorage(defenses: any[]) {
 const defenseVenues = ['软件大楼1204', '软件大楼1203', '软件大楼1208', '软件大楼708', '软件大楼701', '软件大楼705']
 
 // Mock 答辩数据（基于 SQL 数据）
+interface Defense {
+  defense_information_id: number
+  thesis_title: string
+  paper_type: string
+  defense_student: number
+  defense_time: string
+  venue_of_defense: string
+  defense_notice: string
+  defense_status: string
+  defense_results: string
+  recommend: number
+  create_time: string
+  update_time: string
+}
+
 let mockDefenses = getStoredDefenses() || [
   {
     defense_information_id: 1,
@@ -286,13 +301,13 @@ export default [
       const size = parseInt(query.size || '10')
       const thesis_title = query.thesis_title || ''
       
-      let filtered = mockDefenses.filter(item => {
+      let filtered = mockDefenses.filter((item: Defense) => {
         if (thesis_title && !item.thesis_title.includes(thesis_title)) return false
         return true
       })
       
       // 添加答辩文件信息
-      const defensesWithFiles = filtered.map(defense => {
+      const defensesWithFiles = filtered.map((defense: Defense) => {
         const file = mockDefenseFiles.find(f => f.defense_id === defense.defense_information_id)
         return {
           ...defense,
@@ -321,7 +336,7 @@ export default [
     method: 'get',
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const defense = mockDefenses.find(d => d.defense_information_id === id)
+      const defense = mockDefenses.find((d: Defense) => d.defense_information_id === id)
       
       if (!defense) {
         return {
@@ -350,7 +365,7 @@ export default [
     url: '/api/defense',
     method: 'post',
     response: ({ body }: { body: any }) => {
-      const newId = Math.max(...mockDefenses.map(d => d.defense_information_id)) + 1
+      const newId = Math.max(...mockDefenses.map((d: Defense) => d.defense_information_id)) + 1
       const newDefense = {
         defense_information_id: newId,
         ...body,
@@ -376,7 +391,7 @@ export default [
     method: 'put',
     response: ({ url, body }: { url: string; body: any }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const index = mockDefenses.findIndex(d => d.defense_information_id === id)
+      const index = mockDefenses.findIndex((d: Defense) => d.defense_information_id === id)
       
       if (index === -1) {
         return {
@@ -409,7 +424,7 @@ export default [
     method: 'delete',
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const index = mockDefenses.findIndex(d => d.defense_information_id === id)
+      const index = mockDefenses.findIndex((d: Defense) => d.defense_information_id === id)
       
       if (index === -1) {
         return {
@@ -476,24 +491,74 @@ export default [
   {
     url: '/api/defense/file/download/:id',
     method: 'get',
-    response: ({ url }: { url: string }) => {
-      const fileId = parseInt(url.split('/').pop() || '0')
+    rawResponse: (req, res) => {
+      const fileId = parseInt((req.url || '').split('/').pop() || '0')
       const file = mockDefenseFiles.find(f => f.file_id === fileId)
       
       if (!file) {
-        return {
+        res.statusCode = 404
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({
           error: {
             code: 404,
             message: '文件不存在'
           }
+        }))
+        return
+      }
+      
+      // 根据文件扩展名设置MIME类型
+      const getMimeType = (fileName: string) => {
+        const parts = fileName.split('.')
+        const ext = parts.length > 1 ? parts.pop()?.toLowerCase() : ''
+        switch(ext) {
+          case 'pdf':
+            return 'application/pdf'
+          case 'doc':
+            return 'application/msword'
+          case 'docx':
+            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          case 'xls':
+            return 'application/vnd.ms-excel'
+          case 'xlsx':
+            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          case 'ppt':
+            return 'application/vnd.ms-powerpoint'
+          case 'pptx':
+            return 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+          case 'txt':
+            return 'text/plain'
+          case 'zip':
+            return 'application/zip'
+          case 'rar':
+            return 'application/x-rar-compressed'
+          default:
+            return 'application/octet-stream'
         }
       }
       
-      // 模拟文件内容（实际应用中应该返回真实文件内容）
+      // 创建一个模拟文件内容的Blob
       const mockFileContent = `这是 ${file.file_name} 的模拟文件内容\n答辩文件ID: ${file.file_id}\n上传时间: ${file.upload_time}`
+      const blobContent = new Blob([mockFileContent], { type: getMimeType(file.file_name) })
       
-      // 返回字符串内容，前端会处理为Blob
-      return mockFileContent
+      res.statusCode = 200
+      res.setHeader('Content-Type', getMimeType(file.file_name))
+      res.setHeader('Content-Disposition', `attachment; filename="${file.file_name}"`)
+      res.setHeader('Content-Length', blobContent.size)
+      
+      // 将Blob转换为Buffer并发送
+      const reader = blobContent.stream().getReader()
+      function pump(): Promise<any> {
+        return reader.read().then(({ done, value }) => {
+          if (done) {
+            res.end()
+            return
+          }
+          res.write(value)
+          return pump()
+        })
+      }
+      pump()
     }
   },
   
