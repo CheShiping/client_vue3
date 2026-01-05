@@ -178,7 +178,10 @@ const handleDownloadFile = async () => {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = defenseFile.value.file_name
+      // 检查文件名是否已包含扩展名，避免重复添加
+      const hasExtension = /\.[^.]+$/.test(defenseFile.value.file_name)
+      const fileName = hasExtension ? defenseFile.value.file_name : defenseFile.value.file_name
+      link.download = fileName
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

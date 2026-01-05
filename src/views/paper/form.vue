@@ -50,7 +50,7 @@
               v-model="formData.student_id" 
               placeholder="请选择关联学生" 
               style="width: 100%" 
-              :disabled="userStore.userInfo.user_group !== 'teacher' && userStore.userInfo.user_group !== 'admin' || mode === 'edit'">
+              :disabled="userStore.userInfo.user_group !== 'teacher' && userStore.userInfo.user_group !== 'admin' || mode === 'view'">
               <el-option 
                 v-for="student in studentList" 
                 :key="student.student_users_id" 

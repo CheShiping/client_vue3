@@ -169,7 +169,7 @@ export default [
       const thesis_title = query.thesis_title || ''
       const upload_students = query.upload_students ? parseInt(query.upload_students) : null
       
-      let filtered = mockPapers.filter(item => {
+      let filtered = mockPapers.filter((item: any) => {
         if (thesis_title && !item.thesis_title.includes(thesis_title)) return false
         // 如果指定了upload_students参数，则只返回该学生上传的资料
         if (upload_students !== null && item.upload_students !== upload_students) return false
@@ -177,10 +177,10 @@ export default [
       })
       
       // 添加file_id和defense_material_name字段
-      const dataWithFileInfo = filtered.map(item => ({
+      const dataWithFileInfo = filtered.map((item: any) => ({
         ...item,
         file_id: item.paper_information_id, // 使用paper_information_id作为file_id
-        defense_material_name: item.thesis_title + '.pdf' // 生成资料名称
+        defense_material_name: item.thesis_title // 不要自动添加扩展名，保持原始文件名
       }))
       
       const start = (page - 1) * size
@@ -204,7 +204,7 @@ export default [
     method: 'get',
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const paper = mockPapers.find(p => p.paper_information_id === id)
+      const paper = mockPapers.find((p: any) => p.paper_information_id === id)
       
       if (!paper) {
         return {
@@ -219,7 +219,7 @@ export default [
       const paperWithFileInfo = {
         ...paper,
         file_id: paper.paper_information_id,
-        defense_material_name: paper.thesis_title + '.pdf'
+        defense_material_name: paper.thesis_title // 不要自动添加扩展名，保持原始文件名
       }
       
       return {
@@ -233,7 +233,7 @@ export default [
     url: '/api/paper',
     method: 'post',
     response: ({ body }: { body: any }) => {
-      const newId = Math.max(...mockPapers.map(p => p.paper_information_id)) + 1
+      const newId = Math.max(...mockPapers.map((p: any) => p.paper_information_id)) + 1
       const newPaper = {
         paper_information_id: newId,
         ...body,
@@ -266,7 +266,7 @@ export default [
     method: 'put',
     response: ({ url, body }: { url: string; body: any }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const index = mockPapers.findIndex(p => p.paper_information_id === id)
+      const index = mockPapers.findIndex((p: any) => p.paper_information_id === id)
       
       if (index === -1) {
         return {
@@ -306,7 +306,7 @@ export default [
     method: 'delete',
     response: ({ url }: { url: string }) => {
       const id = parseInt(url.split('/').pop() || '0')
-      const index = mockPapers.findIndex(p => p.paper_information_id === id)
+      const index = mockPapers.findIndex((p: any) => p.paper_information_id === id)
       
       if (index === -1) {
         return {

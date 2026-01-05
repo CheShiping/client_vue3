@@ -371,7 +371,17 @@ const handleDownload = async (row) => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = row.thesis_title + '.pdf' || 'download.pdf';
+      // 使用实际的文件名，而不是论文标题
+      // 优先使用 paper_attachment 作为文件名，如果不存在则使用论文标题
+      let fileName = '';
+      if (row.paper_attachment) {
+        fileName = row.paper_attachment; // 使用实际附件文件名
+      } else if (row.thesis_title) {
+        fileName = row.thesis_title; // 回退到使用论文标题
+      } else {
+        fileName = 'download'; // 如果都没有，则使用默认名（不带扩展名）
+      }
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

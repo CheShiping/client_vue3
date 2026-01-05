@@ -200,6 +200,7 @@ const handleDownload = async (row) => {
       // 创建一个临时链接来触发下载
       const link = document.createElement('a')
       link.href = downloadUrl
+      // 直接使用原始文件名，不添加扩展名
       link.download = row.defense_material_name || 'download'
       link.target = '_blank'  // 在新标签页中打开
       document.body.appendChild(link)
