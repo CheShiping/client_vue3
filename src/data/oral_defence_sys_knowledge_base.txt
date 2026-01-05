@@ -1,0 +1,210 @@
+# 数据库名称：oral_defence_sys
+
+## 表：slides（轮播图）
+字段说明：
+- slides_id: 轮播图ID
+- title: 标题
+- content: 内容
+- url: 链接
+- img: 轮播图图片路径
+- hits: 点击量
+- create_time: 创建时间
+- update_time: 更新时间
+
+示例数据：
+1 | 轮播图1 | 内容1 | /article/details?article=1 | /api/upload/1565524124921495553.jpg | 74 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
+2 | 轮播图2 | 内容2 | /article/details?article=2 | /api/upload/1565526092209455105.jpg | 895 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
+3 | 轮播图3 | 内容3 | /article/details?article=3 | /api/upload/1565526499723837441.jpg | 590 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
+
+## 表：upload（文件上传）
+字段说明：
+- upload_id: 上传ID
+- name: 文件名
+- path: 访问路径
+- file: 文件存储路径
+- display: 显示顺序
+- father_id: 父级ID
+- dir: 所属文件夹
+- type: 文件类型
+
+示例数据：
+1 | movie.mp4 | /upload/movie.mp4 | (null) | (null) | 0 | (null) | video
+
+## 表：notice（公告）
+字段说明：
+- notice_id: 公告ID
+- title: 标题
+- content: 正文（HTML格式）
+- create_time: 创建时间
+- update_time: 更新时间
+
+示例数据：
+1 | 网站公告 | <p>公告，是指政府、团体对重大事件当众正式公布...</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
+2 | 关于我们 | <p>一个网站要取得成功...</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
+3 | 联系方式 | <h3>网站内容及品牌合作</h3><p>Email：xxxx@qq.com</p>... | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
+4 | 网站介绍 | <p>此处可上传文字、图片、视频、超链接、表格等内容区</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
+
+## 表：user_group（用户组）
+字段说明：
+- group_id: 用户组ID
+- display: 显示顺序
+- name: 用户组名称
+- description: 描述
+- source_table/source_field/source_id: 来源关联信息
+- register: 注册位置
+- create_time/update_time
+
+示例数据：
+1 | 100 | 管理员 | (null) | ... | 0 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
+2 | 100 | 游客 | (null) | ... | 0 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
+3 | 100 | 学生用户 | (null) | student_users | student_users_id | 0 | 3 | ...
+4 | 100 | 教师用户 | (null) | teacher_users | teacher_users_id | 0 | 0 | ...
+
+## 表：article_type（文章分类）
+字段说明：
+- type_id: 分类ID
+- display: 显示顺序
+- name: 分类名称
+- father_id: 上级分类ID
+- description/icon/url: 描述、图标、外链
+- create_time/update_time
+
+示例数据：
+1 | 100 | 学校 | 0 | (null) | (null) | (null) | 2023-07-14 15:28:13 | 2023-07-14 15:28:13
+
+## 表：article（文章）
+字段说明：
+- article_id: 文章ID
+- title: 标题
+- type: 分类（字符串）
+- hits/praise_len: 点击数、点赞数
+- create_time/update_time
+- source/url/tag/content/img/description
+
+示例文章标题：
+1. 党的二十大代表、校长刘雅红作学习宣传贯彻党的二十大精神专题辅导报告
+2. 校领导参加“2022广东拉美友城交流日”活动
+3. 美国开学季家长多忧愁 四成多家长担心校园安全
+4. 促爱国主义教育 香港举行“光影进校园”活动
+5. 法治宣传进校园 讲好“开学第一课”
+6. 我校22项作品在“立志·修身·博学·报国”主题教育活动中获奖
+7. 扎紧扎牢校园疫情防线 全力守护师生健康安全
+8. 学校党委常委会开展专题学习
+
+每篇文章包含完整 HTML 内容、封面图路径、发布时间等。
+
+## 表：access_token（登录令牌）
+字段说明：
+- token_id: 令牌ID
+- token: 临时访问令牌（64位字符串）
+- info: 附加信息（本例中为 null）
+- maxage: 有效期（小时，默认2）
+- user_id: 关联用户ID
+
+示例：大量 token 记录，user_id 均为 1（管理员）
+
+## 表：user（用户账户）
+字段说明：
+- user_id: 用户ID
+- state: 账户状态（1=可用）
+- user_group: 用户组名称
+- login_time: 最后登录时间
+- phone/email 及其认证状态
+- username/nickname/password/avatar
+- create_time
+
+示例数据：
+1 | 1 | 管理员 | 2023-05-04 16:42:42 | (null) | 0 | admin | admin | bfd59291e825b5f2bbf1eb76569f8fe7 | ... | /api/upload/admin_avatar.jpg | 2023-05-30 17:35:13
+
+## 表：student_users（学生用户）
+字段说明：
+- student_users_id: 学生ID
+- student_name/gender/age: 姓名、性别、年龄
+- examine_state: 审核状态（默认“已通过”）
+- recommend: 智能推荐权重
+- user_id: 关联用户ID
+- create_time/update_time
+
+（当前无具体学生数据，仅表结构）
+
+## 表：teacher_users（教师用户）
+字段说明：
+- teacher_users_id: 教师ID
+- teachers_name/gender_of_teachers/age_of_teachers
+- examine_state/recommend/user_id
+- create_time/update_time
+
+（当前无具体教师数据，仅表结构）
+
+## 表：publish_topic_selection（发布选题）
+字段说明：
+- publish_topic_selection_id: 选题ID
+- release_students: 发布学生ID（当前为0）
+- student_name: 学生姓名
+- release_time: 发布日期
+- thesis_title: 论文题目（唯一）
+- question_type/title_attachment/question_details
+- topic_status/question_status
+- recommend/create_time/update_time
+
+示例论文题目（8条）：
+1. 论文题目1 → 题目类型1，详情1，状态1
+2. 论文题目2 → 题目类型2，详情2，状态2
+...
+8. 论文题目8
+
+## 表：thesis_topic_selection（论文选题）
+字段说明：
+- thesis_topic_selection_id: 选题ID
+- thesis_title（唯一）
+- instructor: 指导教师ID（当前为0）
+- cover_photo: 封面图
+- teachers_name: 教师姓名
+- release_time/question_type/title_attachment/paper_details
+- hits/praise_len/recommend
+
+示例数据（8条），含点击数（如969）、点赞数（如785）及封面图路径。
+
+## 表：topic_information（选题信息）
+记录每个论文题目的选题状态、学生、时间、备注等。
+8条示例数据，与上述题目一一对应。
+
+## 表：paper_information（论文信息）
+字段：
+- paper_information_id
+- thesis_title/instructor/paper_type/upload_students/upload_time
+- paper_attachment/thesis_evaluation/teachers_opinion/paper_comments
+
+8条示例，含评优、老师意见、评语。
+
+## 表：defense_information（答辩信息）
+字段：
+- defense_information_id
+- thesis_title/paper_type/defense_student/defense_time
+- venue_of_defense/defense_notice/defense_status/defense_results
+
+8条示例，含答辩地点、须知、结果。
+
+## 表：score_information（成绩信息）
+字段：
+- score_information_id
+- thesis_title/question_type/defense_student/release_time
+- award_and_excellence_evaluation/score_details
+
+8条示例，含评奖评优和成绩详情。
+
+## 其他辅助表（结构已定义，无数据或少量数据）：
+- praise（点赞）
+- hits（点击记录）
+- comment（评论）
+- collect（收藏）
+
+---
+# 总结
+该系统是一个面向高校毕业论文管理的综合平台，支持：
+- 用户角色：管理员、学生、教师、游客
+- 功能模块：公告、轮播图、文章发布、选题发布与选择、论文提交、答辩安排、成绩管理、文件上传等
+- 数据关系：通过 user_id、thesis_title 等字段关联各实体
+- 所有核心业务数据（选题、论文、答辩、成绩）均有8条示例记录，结构一致，便于批量处理
+
+此文本可直接用作 RAG 知识库，供 AI 回答关于该系统功能、数据结构、业务流程等问题。
