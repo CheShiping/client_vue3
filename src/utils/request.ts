@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
 
@@ -52,7 +52,7 @@ service.interceptors.response.use(
       })
       
       // 401: 未登录或token过期
-      if (res.error.code === 401 || res.error.code === 10000) {
+      if (res.error.code === 401) {
         const userStore = useUserStore()
         userStore.logout()
         router.push('/login')
