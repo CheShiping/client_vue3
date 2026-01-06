@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box">
       <div class="login-header">
-        <img src="/tubiao.jpeg" alt="Logo" class="logo-img" />
+        <img src="/tubiao.svg" alt="Logo" class="logo-img" />
         <h2>答辩管理系统</h2>
         <p>欢迎登录</p>
       </div>
