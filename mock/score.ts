@@ -163,13 +163,16 @@ export default [
   {
     url: '/api/score/list',
     method: 'get',
-    response: ({ query }: { query: { page?: string; size?: string; thesis_title?: string } }) => {
+    response: ({ query }: { query: { page?: string; size?: string; thesis_title?: string; defense_student?: string } }) => {
       const page = parseInt(query.page || '1')
       const size = parseInt(query.size || '10')
       const thesis_title = query.thesis_title || ''
+      const defense_student = query.defense_student ? parseInt(query.defense_student) : null
       
       let filtered = mockScores.filter(item => {
         if (thesis_title && !item.thesis_title.includes(thesis_title)) return false
+        // 如果指定了defense_student参数，则只返回该学生对应的成绩
+        if (defense_student !== null && item.defense_student !== defense_student) return false
         return true
       })
       
