@@ -325,28 +325,5 @@ export default [
         }
       }
     }
-  },
-  
-  // 根据用户ID获取学生信息
-  {
-    url: '/api/student/user/:userId',
-    method: 'get',
-    response: ({ url }: { url: string }) => {
-      const userId = parseInt(url.split('/').pop() || '0')
-      const student = mockStudents.find(s => s.user_id === userId)
-      
-      if (!student) {
-        return {
-          error: {
-            code: 404,
-            message: '学生不存在'
-          }
-        }
-      }
-      
-      return {
-        result: student
-      }
-    }
   }
 ] as MockMethod[]

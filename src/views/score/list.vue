@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import PageTable from '@/components/PageTable/index.vue'
 import ScoreForm from './form.vue'
 import { Plus } from '@element-plus/icons-vue'
@@ -58,6 +58,14 @@ const searchParams = ref({
   thesis_title: ''
 })
 
+// 监听用户信息变化，更新当前学生ID
+watch(() => userStore.userInfo.user_id, async (newUserId) => {
+  if (userStore.userInfo.user_group === 'student' && newUserId) {
+    const currentStudentId = await getCurrentStudentId();
+    userStore.currentStudentId = currentStudentId;
+  }
+}, { immediate: true })
+
 // 加载数据
 const loadData = async () => {
   if (!pageTableRef.value) return
@@ -72,9 +80,14 @@ const loadData = async () => {
     
     // 如果是学生，根据学生ID过滤数据
     if (userStore.userInfo.user_group === 'student') {
-      const currentStudentId = await getCurrentStudentId();
-      if (currentStudentId) {
-        params.defense_student = currentStudentId
+      // 使用store中保存的学生ID，如果不存在则获取
+      let studentId = userStore.currentStudentId;
+      if (!studentId) {
+        studentId = await getCurrentStudentId();
+        userStore.currentStudentId = studentId;
+      }
+      if (studentId) {
+        params.defense_student = studentId
       }
     }
     
