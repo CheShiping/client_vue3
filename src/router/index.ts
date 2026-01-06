@@ -38,6 +38,24 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true
         }
       },
+      {
+        path: 'user/info',
+        name: 'UserInfo',
+        component: () => import('@/views/user/info.vue'),
+        meta: {
+          title: '个人信息',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'user/password',
+        name: 'UserPassword',
+        component: () => import('@/views/user/password.vue'),
+        meta: {
+          title: '修改密码',
+          requiresAuth: true
+        }
+      },
       // 学生管理
       {
         path: 'student/list',

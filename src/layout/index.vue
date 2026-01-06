@@ -3,7 +3,7 @@
     <!-- 侧边栏 -->
     <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar">
       <div class="logo">
-        <img v-if="!isCollapse" src="/tubiao.jpeg" alt="Logo" />
+        <img v-if="!isCollapse" src="/tubiao.svg" alt="Logo" />
         <span v-if="!isCollapse" class="logo-text">答辩管理系统</span>
       </div>
       <el-menu
@@ -140,6 +140,12 @@ const handleMenuClick = (path) => {
 // 处理用户下拉菜单命令
 const handleCommand = async (command) => {
   switch (command) {
+    case 'info':
+      router.push('/user/info')
+      break
+    case 'password':
+      router.push('/user/password')
+      break
     case 'logout':
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
         confirmButtonText: '确定',
