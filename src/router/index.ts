@@ -21,15 +21,6 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/forgot',
-    name: 'Forgot',
-    component: () => import('@/views/forgot/index.vue'),
-    meta: {
-      title: '忘记密码',
-      requiresAuth: false
-    }
-  },
-  {
     path: '/',
     component: () => import('@/layout/index.vue'),
     redirect: '/dashboard',
@@ -44,24 +35,6 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '首页',
           icon: 'HomeFilled',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'user/info',
-        name: 'UserInfo',
-        component: () => import('@/views/user/info.vue'),
-        meta: {
-          title: '个人信息',
-          requiresAuth: true
-        }
-      },
-      {
-        path: 'user/password',
-        name: 'UserPassword',
-        component: () => import('@/views/user/password.vue'),
-        meta: {
-          title: '修改密码',
           requiresAuth: true
         }
       },
