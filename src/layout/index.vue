@@ -118,7 +118,7 @@ const menuRoutes = computed(() => {
     const adminExcludedRoutes = ['student/paper', 'student/score']
     return allRoutes.filter(r => !adminExcludedRoutes.includes(r.path))
   } else if (userStore.userInfo.user_group === 'teacher') {
-    const teacherRoutes = ['dashboard', 'topic/list', 'defense/list', 'score/list', 'notice/center']
+    const teacherRoutes = ['dashboard', 'notice/list', 'topic/list', 'defense/list', 'score/list', 'notice/center']
     return allRoutes.filter(r => teacherRoutes.includes(r.path))
   } else if (userStore.userInfo.user_group === 'student') {
     const studentRoutes = ['dashboard', 'topic/list', 'student/paper', 'student/score', 'notice/center']

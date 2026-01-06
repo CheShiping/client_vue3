@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
         name: 'PaperList',
         component: () => import('@/views/paper/list.vue'),
         meta: {
-          title: '论文管理',
+          title: '答辩材料',
           icon: 'Document',
           requiresAuth: true
         }
@@ -196,21 +196,6 @@ router.beforeEach(async (to, from, next) => {
     await userStore.fetchUserInfo()
   }
   
-  // 如果获取用户信息后仍然没有有效用户信息，跳转到登录页
-  if (!userStore.userInfo.username) {
-    // 添加错误提示去重逻辑
-    if (!window.lastUserInfoErrorTime || Date.now() - window.lastUserInfoErrorTime > 5000) {
-      ElMessage.warning('用户信息获取失败，请重新登录')
-      window.lastUserInfoErrorTime = Date.now()
-    }
-    
-    next({
-      path: '/login',
-      query: { redirect: to.fullPath }
-    })
-    return
-  }
-  
   // 权限验证
   if (userStore.isAdmin) {
     // 管理员可以访问所有页面
@@ -219,8 +204,6 @@ router.beforeEach(async (to, from, next) => {
     // 教师可以访问的页面
     const teacherAllowedPaths = [
       '/dashboard',
-      '/user/info',
-      '/user/password',
       '/topic/list',
       '/topic/form',
       '/paper/list',
@@ -264,8 +247,6 @@ router.beforeEach(async (to, from, next) => {
     // 学生可以访问的页面
     const studentAllowedPaths = [
       '/dashboard',
-      '/user/info',
-      '/user/password',
       '/topic/list',
       '/student/topic',
       '/paper/list',
@@ -296,21 +277,6 @@ router.beforeEach(async (to, from, next) => {
     } else {
       ElMessage.warning('您没有权限访问该页面')
       if (from.path && from.path !== to.path && studentAllowedPaths.includes(from.path)) {
-        next(from.path)
-      } else {
-        next('/dashboard')
-      }
-    }
-  } else {
-    // 默认用户只能访问基本页面
-    const basicPaths = ['/dashboard', '/user/info', '/user/password']
-    // 检查完整路径是否在允许列表中
-    const fullPath = to.path
-    if (basicPaths.includes(fullPath)) {
-      next()
-    } else {
-      ElMessage.warning('您没有权限访问该页面')
-      if (from.path && from.path !== to.path && basicPaths.includes(from.path)) {
         next(from.path)
       } else {
         next('/dashboard')
