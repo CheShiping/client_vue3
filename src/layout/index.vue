@@ -10,9 +10,9 @@
         :default-active="activeMenu"
         :collapse="isCollapse"
         :collapse-transition="false"
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        background-color="#b37f1b"
+        text-color="#ffd166"
+        active-text-color="#ffee00"
       >
         <template v-for="route in menuRoutes" :key="route.path">
           <el-menu-item :index="'/' + route.path" @click="handleMenuClick('/' + route.path)" v-if="!route.children">
@@ -120,7 +120,7 @@ const menuRoutes = computed(() => {
     const teacherRoutes = ['dashboard', 'topic/list', 'defense/list', 'score/list', 'notice/center']
     return allRoutes.filter(r => teacherRoutes.includes(r.path))
   } else if (userStore.userInfo.user_group === 'student') {
-    const studentRoutes = ['dashboard', 'topic/list', 'paper/list', 'student/paper', 'student/score', 'notice/center']
+    const studentRoutes = ['dashboard', 'topic/list', 'student/paper', 'student/score', 'notice/center']
     return allRoutes.filter(r => studentRoutes.includes(r.path))
   }
   return []
@@ -139,12 +139,6 @@ const handleMenuClick = (path) => {
 // 处理用户下拉菜单命令
 const handleCommand = async (command) => {
   switch (command) {
-    case 'info':
-      router.push('/user/info')
-      break
-    case 'password':
-      router.push('/user/password')
-      break
     case 'logout':
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
         confirmButtonText: '确定',
@@ -163,7 +157,7 @@ const handleCommand = async (command) => {
   height: 100vh;
   
   .sidebar {
-    background-color: #304156;
+    background-color: #b37f1b;
     transition: width 0.3s ease;
     overflow-x: hidden;
     
@@ -172,7 +166,7 @@ const handleCommand = async (command) => {
       align-items: center;
       justify-content: center;
       height: 60px;
-      background-color: #2b3a4d;
+      background-color: #b37f1b;
       
       img {
         width: 32px;
@@ -181,7 +175,7 @@ const handleCommand = async (command) => {
       }
       
       .logo-text {
-        color: #fff;
+        color: #ffee00;
         font-size: 18px;
         font-weight: bold;
         white-space: nowrap;
