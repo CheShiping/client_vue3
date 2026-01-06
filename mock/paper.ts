@@ -37,14 +37,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 1,
     paper_type: '学术论文',
     upload_students: 1,
-    upload_time: '2023-07-14',
+    upload_time: '2025-12-14',
     paper_attachment: '/uploads/papers/paper1.pdf',
     thesis_evaluation: '优秀',
     teachers_opinion: '研究内容充实，方法创新，成果显著',
     paper_comments: '论文结构完整，逻辑清晰，论述充分',
     recommend: 1,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 2,
@@ -52,14 +52,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 2,
     paper_type: '技术报告',
     upload_students: 2,
-    upload_time: '2023-07-15',
+    upload_time: '2025-12-15',
     paper_attachment: '/uploads/papers/paper2.pdf',
     thesis_evaluation: '良好',
     teachers_opinion: '系统设计合理，实现方法可行',
     paper_comments: '报告内容全面，技术路线清晰',
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 3,
@@ -67,14 +67,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 1,
     paper_type: '研究论文',
     upload_students: 3,
-    upload_time: '2023-07-16',
+    upload_time: '2025-12-16',
     paper_attachment: '/uploads/papers/paper3.pdf',
     thesis_evaluation: '良好',
     teachers_opinion: '研究方法科学，结论可靠',
     paper_comments: '论文选题新颖，具有一定实用价值',
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 4,
@@ -82,14 +82,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 2,
     paper_type: '学术论文',
     upload_students: 4,
-    upload_time: '2023-07-17',
+    upload_time: '2025-12-17',
     paper_attachment: '/uploads/papers/paper4.pdf',
     thesis_evaluation: '优秀',
     teachers_opinion: '研究视角独特，技术方案创新',
     paper_comments: '论文结构严谨，论证充分',
     recommend: 1,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 5,
@@ -97,14 +97,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 3,
     paper_type: '研究论文',
     upload_students: 5,
-    upload_time: '2023-07-18',
+    upload_time: '2025-12-18',
     paper_attachment: '/uploads/papers/paper5.pdf',
     thesis_evaluation: '良好',
     teachers_opinion: '研究内容具有实际意义，方法可行',
     paper_comments: '论文逻辑清晰，表述准确',
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 6,
@@ -112,14 +112,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 1,
     paper_type: '技术报告',
     upload_students: 6,
-    upload_time: '2023-07-19',
+    upload_time: '2025-12-19',
     paper_attachment: '/uploads/papers/paper6.pdf',
     thesis_evaluation: '中等',
     teachers_opinion: '方案设计基本合理，但创新性不足',
     paper_comments: '报告内容基本完整，但分析深度不够',
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 7,
@@ -127,14 +127,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 2,
     paper_type: '学术论文',
     upload_students: 3,
-    upload_time: '2023-07-20',
+    upload_time: '2025-12-20',
     paper_attachment: '/uploads/papers/paper7.pdf',
     thesis_evaluation: '优秀',
     teachers_opinion: '研究内容前沿，方法创新，成果突出',
     paper_comments: '论文质量高，具有很高的学术价值',
     recommend: 1,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   },
   {
     paper_information_id: 8,
@@ -142,14 +142,14 @@ let mockPapers = getStoredPapers() || [
     instructor: 3,
     paper_type: '研究论文',
     upload_students: 3,
-    upload_time: '2023-07-21',
+    upload_time: '2025-12-21',
     paper_attachment: '/uploads/papers/paper8.pdf',
     thesis_evaluation: '良好',
     teachers_opinion: '研究内容实用，方法可行',
     paper_comments: '论文结构合理，实验数据充分',
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
-    update_time: '2023-07-14 15:28:12'
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12'
   }
 ]
 
@@ -340,14 +340,14 @@ export default [
           instructor: 1,
           paper_type: '学术论文',
           upload_students: 1,
-          upload_time: '2023-07-14',
+          upload_time: '2025-12-14',
           paper_attachment: '/uploads/papers/paper1.pdf',
           thesis_evaluation: '优秀',
           teachers_opinion: '研究内容充实，方法创新，成果显著',
           paper_comments: '论文结构完整，逻辑清晰，论述充分',
           recommend: 1,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 2,
@@ -355,14 +355,14 @@ export default [
           instructor: 2,
           paper_type: '技术报告',
           upload_students: 2,
-          upload_time: '2023-07-15',
+          upload_time: '2025-12-15',
           paper_attachment: '/uploads/papers/paper2.pdf',
           thesis_evaluation: '良好',
           teachers_opinion: '系统设计合理，实现方法可行',
           paper_comments: '报告内容全面，技术路线清晰',
           recommend: 0,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 3,
@@ -370,14 +370,14 @@ export default [
           instructor: 1,
           paper_type: '研究论文',
           upload_students: 3,
-          upload_time: '2023-07-16',
+          upload_time: '2025-12-16',
           paper_attachment: '/uploads/papers/paper3.pdf',
           thesis_evaluation: '良好',
           teachers_opinion: '研究方法科学，结论可靠',
           paper_comments: '论文选题新颖，具有一定实用价值',
           recommend: 0,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 4,
@@ -385,14 +385,14 @@ export default [
           instructor: 2,
           paper_type: '学术论文',
           upload_students: 4,
-          upload_time: '2023-07-17',
+          upload_time: '2025-12-17',
           paper_attachment: '/uploads/papers/paper4.pdf',
           thesis_evaluation: '优秀',
           teachers_opinion: '研究视角独特，技术方案创新',
           paper_comments: '论文结构严谨，论证充分',
           recommend: 1,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 5,
@@ -400,14 +400,14 @@ export default [
           instructor: 3,
           paper_type: '研究论文',
           upload_students: 5,
-          upload_time: '2023-07-18',
+          upload_time: '2025-12-18',
           paper_attachment: '/uploads/papers/paper5.pdf',
           thesis_evaluation: '良好',
           teachers_opinion: '研究内容具有实际意义，方法可行',
           paper_comments: '论文逻辑清晰，表述准确',
           recommend: 0,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 6,
@@ -415,14 +415,14 @@ export default [
           instructor: 1,
           paper_type: '技术报告',
           upload_students: 6,
-          upload_time: '2023-07-19',
+          upload_time: '2025-12-19',
           paper_attachment: '/uploads/papers/paper6.pdf',
           thesis_evaluation: '中等',
           teachers_opinion: '方案设计基本合理，但创新性不足',
           paper_comments: '报告内容基本完整，但分析深度不够',
           recommend: 0,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 7,
@@ -430,14 +430,14 @@ export default [
           instructor: 2,
           paper_type: '学术论文',
           upload_students: 7,
-          upload_time: '2023-07-20',
+          upload_time: '2025-12-20',
           paper_attachment: '/uploads/papers/paper7.pdf',
           thesis_evaluation: '优秀',
           teachers_opinion: '研究内容前沿，方法创新，成果突出',
           paper_comments: '论文质量高，具有很高的学术价值',
           recommend: 1,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         },
         {
           paper_information_id: 8,
@@ -445,14 +445,14 @@ export default [
           instructor: 3,
           paper_type: '研究论文',
           upload_students: 8,
-          upload_time: '2023-07-21',
+          upload_time: '2025-12-21',
           paper_attachment: '/uploads/papers/paper8.pdf',
           thesis_evaluation: '良好',
           teachers_opinion: '研究内容实用，方法可行',
           paper_comments: '论文结构合理，实验数据充分',
           recommend: 0,
-          create_time: '2023-07-14 15:28:12',
-          update_time: '2023-07-14 15:28:12'
+          create_time: '2025-12-14 15:28:12',
+          update_time: '2025-12-14 15:28:12'
         }
       ]
 

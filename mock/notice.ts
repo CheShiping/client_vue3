@@ -36,77 +36,77 @@ let mockNotices = getStoredNotices() || [
     notice_title: '毕业答辩工作安排通知',
     notice_content: '各位同学，2023届毕业答辩工作将于7月14日至7月30日进行，请相关同学及时关注答辩安排，按时参加答辩。',
     notice_publisher: '教务处',
-    release_time: '2023-07-10',
+    release_time: '2025-12-10',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-10 09:00:00',
-    update_time: '2023-07-10 09:00:00'
+    create_time: '2025-12-10 09:00:00',
+    update_time: '2025-12-10 09:00:00'
   },
   {
     notice_id: 2,
     notice_title: '关于答辩材料提交截止时间的通知',
     notice_content: '请各位参与答辩的同学于7月12日前提交答辩PPT和相关材料至指定邮箱，逾期将影响答辩安排。',
     notice_publisher: '学院办公室',
-    release_time: '2023-07-08',
+    release_time: '2025-12-08',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-08 14:30:00',
-    update_time: '2023-07-08 14:30:00'
+    create_time: '2025-12-08 14:30:00',
+    update_time: '2025-12-08 14:30:00'
   },
   {
     notice_id: 3,
     notice_title: '答辩地点变更通知',
     notice_content: '原定于软件大楼1203教室的答辩因故调整至软件大楼1208教室进行，请相关同学注意。',
     notice_publisher: '系主任办公室',
-    release_time: '2023-07-12',
+    release_time: '2025-12-12',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-12 11:15:00',
-    update_time: '2023-07-12 11:15:00'
+    create_time: '2025-12-12 11:15:00',
+    update_time: '2025-12-12 11:15:00'
   },
   {
     notice_id: 4,
     notice_title: '答辩注意事项提醒',
     notice_content: '答辩当天请着正装出席，提前30分钟到达答辩地点签到。答辩过程中请关闭手机或将手机调至静音状态。',
     notice_publisher: '学生工作处',
-    release_time: '2023-07-13',
+    release_time: '2025-12-13',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-13 16:45:00',
-    update_time: '2023-07-13 16:45:00'
+    create_time: '2025-12-13 16:45:00',
+    update_time: '2025-12-13 16:45:00'
   },
   {
     notice_id: 5,
     notice_title: '优秀论文评选工作启动',
     notice_content: '今年将继续开展优秀毕业论文评选工作，有意参评的同学请在答辩结束后一周内提交申请材料。',
     notice_publisher: '科研处',
-    release_time: '2023-07-05',
+    release_time: '2025-12-05',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-05 10:20:00',
-    update_time: '2023-07-05 10:20:00'
+    create_time: '2025-12-05 10:20:00',
+    update_time: '2025-12-05 10:20:00'
   },
   {
     notice_id: 6,
     notice_title: '答辩结果公示',
     notice_content: '7月14日场次的答辩结果已出，请相关同学登录系统查看。如有异议，请在3个工作日内提出申诉。',
     notice_publisher: '教学督导组',
-    release_time: '2023-07-14',
+    release_time: '2025-12-14',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-14 18:30:00',
-    update_time: '2023-07-14 18:30:00'
+    create_time: '2025-12-14 18:30:00',
+    update_time: '2025-12-14 18:30:00'
   },
   {
     notice_id: 7,
     notice_title: '暑期实验室开放安排',
     notice_content: '为方便同学们修改论文和准备二次答辩，软件大楼701实验室将在暑期每周一、三、五上午8:00-12:00开放。',
     notice_publisher: '实验中心',
-    release_time: '2023-07-15',
+    release_time: '2025-12-15',
     examine_state: '已通过',
     recommend: 0,
-    create_time: '2023-07-15 09:45:00',
-    update_time: '2023-07-15 09:45:00'
+    create_time: '2025-12-15 09:45:00',
+    update_time: '2025-12-15 09:45:00'
   }
 ]
 

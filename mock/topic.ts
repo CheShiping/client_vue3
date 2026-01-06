@@ -44,7 +44,7 @@ let mockTopics = getStoredTopics() || [
     selected_students_count: 0,
     max_students: 5,
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
+    create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-10 10:00:00'
   },
   {
@@ -60,7 +60,7 @@ let mockTopics = getStoredTopics() || [
     selected_students_count: 0,
     max_students: 3,
     recommend: 1,
-    create_time: '2023-07-14 15:28:12',
+    create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-05 14:30:00'
   },
   {
@@ -76,7 +76,7 @@ let mockTopics = getStoredTopics() || [
     selected_students_count: 4,
     max_students: 4,
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
+    create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-08 09:15:00'
   },
   {
@@ -92,7 +92,7 @@ let mockTopics = getStoredTopics() || [
     selected_students_count: 0,
     max_students: 2,
     recommend: 1,
-    create_time: '2023-07-14 15:28:12',
+    create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-06 11:20:00'
   },
   {
@@ -108,7 +108,7 @@ let mockTopics = getStoredTopics() || [
     selected_students_count: 0,
     max_students: 1,
     recommend: 0,
-    create_time: '2023-07-14 15:28:12',
+    create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-07 15:45:00'
   }
 ]

@@ -272,6 +272,7 @@ router.beforeEach(async (to, from, next) => {
       '/student/score',
       '/student/list',
       '/student/form',
+      '/student/paper',
       '/student/detail',
       '/notice/list',
       '/notice/view',

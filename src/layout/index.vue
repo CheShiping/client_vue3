@@ -10,9 +10,10 @@
         :default-active="activeMenu"
         :collapse="isCollapse"
         :collapse-transition="false"
-        background-color="#b37f1b"
-        text-color="#ffd166"
-        active-text-color="#ffee00"
+        background-color="#CC7700"
+        text-color="#ffffff"
+        active-text-color="#FFA500"
+        active-background-color="#FFA500"
       >
         <template v-for="route in menuRoutes" :key="route.path">
           <el-menu-item :index="'/' + route.path" @click="handleMenuClick('/' + route.path)" v-if="!route.children">
@@ -157,16 +158,16 @@ const handleCommand = async (command) => {
   height: 100vh;
   
   .sidebar {
-    background-color: #b37f1b;
-    transition: width 0.3s ease;
-    overflow-x: hidden;
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 60px;
-      background-color: #b37f1b;
+        background-color: #CC7700;
+        transition: width 0.3s ease;
+        overflow-x: hidden;
+        
+        .logo {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 60px;
+          background-color: #CC7700;
       
       img {
         width: 32px;
@@ -175,7 +176,7 @@ const handleCommand = async (command) => {
       }
       
       .logo-text {
-        color: #ffee00;
+        color: #ffffff;
         font-size: 18px;
         font-weight: bold;
         white-space: nowrap;

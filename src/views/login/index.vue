@@ -141,6 +141,9 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-image: url('../../../public/banner2.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .login-box {
