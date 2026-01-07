@@ -378,6 +378,7 @@ const handleSubmit = async () => {
           v-model="formData.defense_notice"
           type="textarea"
           :rows="3"
+          resize="none"
           placeholder="请输入答辩须知"
         />
       </el-form-item>
