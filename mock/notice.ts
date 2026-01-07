@@ -34,7 +34,7 @@ let mockNotices = getStoredNotices() || [
   {
     notice_id: 1,
     notice_title: '毕业答辩工作安排通知',
-    notice_content: '各位同学，2023届毕业答辩工作将于7月14日至7月30日进行，请相关同学及时关注答辩安排，按时参加答辩。',
+    notice_content: '各位同学，2026届毕业答辩工作将于7月14日至7月30日进行，请相关同学及时关注答辩安排，按时参加答辩。',
     notice_publisher: '教务处',
     release_time: '2025-12-10',
     examine_state: '已通过',
@@ -215,12 +215,7 @@ export default [
           }
         }
       }
-      
-      mockNotices[index] = {
-        ...mockNotices[index],
-        ...body,
-        update_time: new Date().toISOString().replace('T', ' ').slice(0, 19)
-      }
+
       saveNoticesToStorage(mockNotices) // 保存到localStorage
       
       return {

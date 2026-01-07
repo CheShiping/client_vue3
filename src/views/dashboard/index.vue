@@ -1,4 +1,3 @@
-```vue
 <template>
   <div class="dashboard">
     <el-row :gutter="20">
@@ -44,17 +43,13 @@
           width="60%"
           top="50px"
         >
-          <div class="notice-detail">
-            <div class="notice-meta" style="margin-bottom: 20px;">
-              <el-tag :type="getTagType(currentNotice.type)" style="margin-right: 15px;">{{ currentNotice.type }}</el-tag>
-              <span class="notice-time">{{ currentNotice.create_time }}</span>
-            </div>
-            <div class="notice-content" v-html="currentNotice.notice_content"></div>
+          <div style="margin-bottom: 20px;">
+            <el-tag :type="getTagType(currentNotice.type)" style="margin-right: 15px;">{{ currentNotice.type }}</el-tag>
+            <span >{{ currentNotice.create_time }}</span>
           </div>
+          <div class="notice-content" v-html="currentNotice.notice_content"></div>
           <template #footer>
-            <span class="dialog-footer">
               <el-button @click="dialogVisible = false">关闭</el-button>
-            </span>
           </template>
         </el-dialog>
       </el-col>
@@ -131,7 +126,7 @@ const loadStatistics = async () => {
       getTeacherList({ page: 1, size: 1 }),
       getPaperList({ page: 1, size: 1 }),
       getDefenseList({ page: 1, size: 1 }),
-      getNoticeList({ page: 1, size: 5 })
+      getNoticeList({ page: 1, size: 10 })
     ])
     
     if (studentRes.result) {
@@ -164,14 +159,7 @@ const getTagType = (type) => {
   return typeMap[type] || 'primary'
 }
 
-const viewNotice = async (notice) => {
-  // 如果通知对象中已经有完整内容，则直接显示
-  if (notice.content) {
-    currentNotice.value = notice
-    dialogVisible.value = true
-    return
-  }
-  
+const viewNotice = async (notice) => {  
   // 否则通过API获取详情
   try {
     const res = await getNoticeDetail(notice.notice_id)
@@ -237,22 +225,5 @@ onMounted(() => {
   min-height: 300px;
   line-height: 1.8;
   font-size: 16px;
-  
-  :deep(h1), :deep(h2), :deep(h3) {
-    margin: 20px 0 15px 0;
-  }
-  
-  :deep(p) {
-    margin: 15px 0;
-  }
-  
-  :deep(ul), :deep(ol) {
-    padding-left: 25px;
-  }
-  
-  :deep(img) {
-    max-width: 100%;
-    height: auto;
-  }
 }
 </style>
