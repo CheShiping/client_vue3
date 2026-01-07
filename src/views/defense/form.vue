@@ -127,10 +127,8 @@ watch(() => props.modelValue, (val) => {
   if (val && props.data) {
     Object.assign(formData, props.data)
     // 加载答辩文件信息
-    setTimeout(() => {
-      loadDefenseFileInfo()
-    }, 0)
-  } else if (val) {
+    loadDefenseFileInfo()
+  } else {
     // 重置表单
     resetForm()
     defenseFile.value = null

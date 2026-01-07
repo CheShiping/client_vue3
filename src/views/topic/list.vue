@@ -23,7 +23,7 @@
     <el-table-column prop="thesis_title" label="答辩题目" show-overflow-tooltip />
     <el-table-column prop="question_type" label="题目类型" width="120" />
     <el-table-column prop="topic_selection_time" label="发布时间" width="120" />
-    <el-table-column prop="topic_status" label="答辩题目状态" width="120">
+    <el-table-column prop="topic_status" label="答辩题目状态" width="120" align="center">
       <template #default="{ row }">
         <el-tag 
           :type="row.topic_status === '已满' ? 'danger' : 
