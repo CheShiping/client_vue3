@@ -543,7 +543,9 @@ export default [
       
       res.statusCode = 200
       res.setHeader('Content-Type', getMimeType(file.file_name))
-      res.setHeader('Content-Disposition', `attachment; filename="${file.file_name}"`)
+      // 对文件名进行编码以避免HTTP头中的无效字符
+      const encodedFileName = encodeURIComponent(file.file_name).replace(/['()]/g, escape);
+      res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodedFileName}`)
       res.setHeader('Content-Length', blobContent.size)
       
       // 将Blob转换为Buffer并发送
