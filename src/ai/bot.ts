@@ -24,7 +24,7 @@ class Bot {
         apiKey: import.meta.env.VITE_SILICONFLOW_API_KEY || "sk----", // 替换为实际 API Key
         baseURL: "https://api.siliconflow.cn/v1",
       },
-      model: "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B", // 指定使用的模型
+      model: "THUDM/GLM-4-9B-0414", // 指定使用的模型
     });
   }
 
@@ -75,8 +75,8 @@ class Bot {
     };
 
     const vectorStore = await MemoryVectorStore.fromDocuments(
-        splitDocs,
-        embeddings
+      splitDocs,
+      embeddings
     );
 
     this.retriever = vectorStore.asRetriever(2);
@@ -125,9 +125,9 @@ class Bot {
       async (input) => {
         // 构造带有系统提示词的消息
         const systemMessage = new SystemMessage(
-            this.systemPrompt.replace("{context}", input.context)
+          this.systemPrompt.replace("{context}", input.context)
         );
-
+        
         // 调用模型并获取流式响应，传递 signal 用于中断请求
         const stream = await this.chatModel.stream([
           systemMessage,
@@ -139,7 +139,7 @@ class Bot {
         return stream;
       }
     ]);
-
+    
     // 调用模型并获取流式响应，传递 signal 用于中断请求
     const stream = await this.streamingRagChain.stream({ question }, {
       signal: options?.signal

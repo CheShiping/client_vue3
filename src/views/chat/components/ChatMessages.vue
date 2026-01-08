@@ -140,6 +140,13 @@ const AI_AVATAR = 'https://avatars.githubusercontent.com/u/98765432'; // AIåŠ©æ‰
   :deep(.el-scrollbar__wrap) {
     padding: 16px;
   }
+  :deep(.el-scrollbar_view) {
+    height:  calc(100% - 60px);
+  }
+
+  .chat-messages-container {
+    overflow-y: auto
+  }
 }
 
 .message-item {
