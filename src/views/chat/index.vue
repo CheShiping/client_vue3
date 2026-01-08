@@ -241,15 +241,15 @@ const handleQuickQuestion = (question: string) => {
       <ChatInput
         v-model="inputValue"
         :is-loading="isLoading"
-        @submit="() => {
-          handleUserSubmit(inputValue);
+        @submit="(value) => {
+          handleUserSubmit(value);
           inputValue = '';
         }"
         @stop-generate="handleStopGenerate"
         @quick-question="handleQuickQuestion"
       />
     </div>
-  </el-dialog>
+</el-dialog>
 </template>
 
 <style scoped lang="scss">

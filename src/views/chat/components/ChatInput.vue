@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
-import { ElInput, ElButton, ElMessage } from 'element-plus';
-import { Search, Loading, Position } from '@element-plus/icons-vue';
+import { ElButton, ElMessage } from 'element-plus';
+import { Loading, Position } from '@element-plus/icons-vue';
 import { EditorSender} from 'vue-element-plus-x';
 
 const props = defineProps<{
@@ -12,11 +12,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void;
-  (e: 'submit'): void;
+  (e: 'submit', value: string): void;
   (e: 'quick-question', question: string): void;
 }>();
-
-// const senderRef = ref<InstanceType<typeof ElInput> | null>(null);
 
 // 使用本地ref来处理输入值，并与props同步
 const localValue = ref(props.modelValue);
@@ -30,12 +28,13 @@ watch(() => props.modelValue, (newValue) => {
 const handleKeydown = (event: Event | KeyboardEvent) => {
   if (event instanceof KeyboardEvent && event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
-    emit('submit');
+    const senderValue = senderRef.value.getCurrentValue();
+    emit('submit', senderValue.text);
   }
 };
 
 const senderRef = ref();
-const loading = ref(false);
+
 
 function handleSubmit() {
   // 获取当前输入框的内容
@@ -45,20 +44,16 @@ function handleSubmit() {
     ElMessage.warning('请输入内容');
     return;
   }
-  
-  // 更新loading状态
-  loading.value = true;
+
   
   // 发送提交事件
-  emit('submit');
+  emit('submit', senderValue.text);
 }
 
 function handleCancel() {
   // 调用父组件的停止生成函数
   props.onStopGenerate();
   
-  // 取消加载状态
-  loading.value = false;
 }
 
 // 重置输入框内容
@@ -66,12 +61,11 @@ function resetInput() {
   if (senderRef.value && typeof senderRef.value.setValue === 'function') {
     senderRef.value.setValue(''); // 清空输入框内容
   }
-  loading.value = false;
 }
 
 // 监听加载状态变化，当加载完成时重置输入框
 watch(() => props.isLoading, (isLoading) => {
-  if (!isLoading && loading.value) {
+  if (!isLoading ) {
     // 当isLoading变为false且之前loading为true时，说明请求已完成
     resetInput();
   }
@@ -99,6 +93,7 @@ watch(() => props.isLoading, (isLoading) => {
         @keydown="handleKeydown"
       >
         <!-- 自定义操作列表 -->
+
         <template #action-list>
           <div class="action-list-self-wrap">
 
