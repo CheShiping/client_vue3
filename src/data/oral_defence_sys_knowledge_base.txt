@@ -1,8 +1,190 @@
-# 数据库名称：oral_defence_sys
+# 答辩管理系统知识库
 
-## 表：slides（轮播图）
+## 系统概述
+答辩管理系统是为高校毕业答辩流程数字化而设计的综合平台，旨在提升教师、学生在论文选题、材料提交、成绩评定等环节的协作效率。
+
+目标用户：学生、教师、管理员等高校相关人员。
+核心功能：解决传统答辩流程中信息不透明、流程繁琐、沟通低效等问题，实现线上化、规范化管理。
+
+## 用户角色与权限
+- **管理员**：拥有系统全部权限，可管理用户、发布公告、维护系统
+- **教师**：可发布选题、指导学生、评审论文、参与答辩、录入成绩
+- **学生**：可查看选题、提交论文、上传材料、查看成绩
+- **游客**：可浏览公开信息（如公告、新闻等）
+
+## 主要功能模块
+
+### 1. 用户登录与身份认证
+- 支持不同角色用户登录验证
+- 基于Token的身份认证机制
+- 会话管理和自动登出功能
+
+### 2. 仪表盘
+- 个人任务展示
+- 通知提醒
+- 统计数据概览
+
+### 3. 论文选题管理
+- 选题发布与管理（教师）
+- 选题查看与申报（学生）
+- 选题审核与分配
+
+### 4. 答辩材料提交与评审
+- 论文附件上传
+- 评审材料提交
+- 材料状态跟踪
+
+### 5. 成绩管理
+- 成绩录入与编辑
+- 成绩查询与统计
+- 评奖评优管理
+
+### 6. 通知公告
+- 公告发布与管理
+- 通知查看与归档
+- 重要通知提醒
+
+### 7. 信息管理
+- 学生信息管理
+- 教师信息管理
+- 个人信息维护
+
+### 8. 智能问答机器人
+- AI驱动的智能问答功能
+- 基于系统知识库的自动回复
+- 答辩流程指导
+
+## 数据库结构
+
+### 核心业务表
+
+#### 1. user（用户账户）
 字段说明：
-- slides_id: 轮播图ID
+- user_id: 用户ID（主键）
+- state: 账户状态（1=可用，0=禁用）
+- user_group: 用户组名称（管理员、教师、学生等）
+- login_time: 最后登录时间
+- phone: 手机号
+- phone_state: 手机认证状态
+- email: 邮箱
+- email_state: 邮箱认证状态
+- username: 用户名
+- nickname: 昵称
+- password: 密码（MD5加密）
+- avatar: 头像路径
+- create_time: 创建时间
+
+#### 2. student_users（学生用户）
+字段说明：
+- student_users_id: 学生ID（主键）
+- student_name: 学生姓名
+- gender: 性别
+- age: 年龄
+- examine_state: 审核状态（已通过/审核中/未通过）
+- recommend: 智能推荐权重
+- user_id: 关联用户ID
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 3. teacher_users（教师用户）
+字段说明：
+- teacher_users_id: 教师ID（主键）
+- teachers_name: 教师姓名
+- gender_of_teachers: 教师性别
+- age_of_teachers: 教师年龄
+- examine_state: 审核状态
+- recommend: 智能推荐权重
+- user_id: 关联用户ID
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 4. thesis_topic_selection（论文选题）
+字段说明：
+- thesis_topic_selection_id: 选题ID（主键）
+- thesis_title: 论文题目（唯一）
+- instructor: 指导教师ID
+- cover_photo: 封面图路径
+- teachers_name: 教师姓名
+- release_time: 发布时间
+- question_type: 题目类型
+- title_attachment: 题目附件
+- paper_details: 题目详情
+- hits: 点击数
+- praise_len: 点赞数
+- recommend: 推荐权重
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 5. topic_information（选题信息）
+字段说明：
+- topic_information_id: 选题信息ID（主键）
+- thesis_title: 论文题目
+- topic_status: 选题状态（可选/已选/已截止等）
+- student_id: 选题学生ID
+- student_name: 选题学生姓名
+- select_time: 选题时间
+- remark: 备注
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 6. paper_information（论文信息）
+字段说明：
+- paper_information_id: 论文信息ID（主键）
+- thesis_title: 论文题目
+- instructor: 指导教师ID
+- paper_type: 论文类型
+- upload_students: 上传学生ID
+- upload_time: 上传时间
+- paper_attachment: 论文附件路径
+- thesis_evaluation: 论文评价
+- teachers_opinion: 教师意见
+- paper_comments: 论文评语
+- paper_status: 论文状态
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 7. defense_information（答辩信息）
+字段说明：
+- defense_information_id: 答辩信息ID（主键）
+- thesis_title: 论文题目
+- paper_type: 论文类型
+- defense_student: 答辩学生ID
+- defense_time: 答辩时间
+- venue_of_defense: 答辩地点
+- defense_notice: 答辩须知
+- defense_status: 答辩状态
+- defense_results: 答辩结果
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 8. score_information（成绩信息）
+字段说明：
+- score_information_id: 成绩信息ID（主键）
+- thesis_title: 论文题目
+- question_type: 题目类型
+- defense_student: 答辩学生ID
+- release_time: 发布时间
+- award_and_excellence_evaluation: 评奖评优
+- score_details: 成绩详情
+- total_score: 总成绩
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 9. notice（公告）
+字段说明：
+- notice_id: 公告ID（主键）
+- title: 标题
+- content: 正文（HTML格式）
+- publisher: 发布人
+- publish_time: 发布时间
+- create_time: 创建时间
+- update_time: 更新时间
+
+### 辅助功能表
+
+#### 10. slides（轮播图）
+字段说明：
+- slides_id: 轮播图ID（主键）
 - title: 标题
 - content: 内容
 - url: 链接
@@ -11,14 +193,9 @@
 - create_time: 创建时间
 - update_time: 更新时间
 
-示例数据：
-1 | 轮播图1 | 内容1 | /article/details?article=1 | /api/upload/1565524124921495553.jpg | 74 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
-2 | 轮播图2 | 内容2 | /article/details?article=2 | /api/upload/1565526092209455105.jpg | 895 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
-3 | 轮播图3 | 内容3 | /article/details?article=3 | /api/upload/1565526499723837441.jpg | 590 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
-
-## 表：upload（文件上传）
+#### 11. upload（文件上传）
 字段说明：
-- upload_id: 上传ID
+- upload_id: 上传ID（主键）
 - name: 文件名
 - path: 访问路径
 - file: 文件存储路径
@@ -26,185 +203,159 @@
 - father_id: 父级ID
 - dir: 所属文件夹
 - type: 文件类型
+- upload_time: 上传时间
 
-示例数据：
-1 | movie.mp4 | /upload/movie.mp4 | (null) | (null) | 0 | (null) | video
-
-## 表：notice（公告）
+#### 12. user_group（用户组）
 字段说明：
-- notice_id: 公告ID
-- title: 标题
-- content: 正文（HTML格式）
-- create_time: 创建时间
-- update_time: 更新时间
-
-示例数据：
-1 | 网站公告 | <p>公告，是指政府、团体对重大事件当众正式公布...</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
-2 | 关于我们 | <p>一个网站要取得成功...</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
-3 | 联系方式 | <h3>网站内容及品牌合作</h3><p>Email：xxxx@qq.com</p>... | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
-4 | 网站介绍 | <p>此处可上传文字、图片、视频、超链接、表格等内容区</p> | 2023-05-30 18:21:49 | 2023-05-30 18:21:49
-
-## 表：user_group（用户组）
-字段说明：
-- group_id: 用户组ID
+- group_id: 用户组ID（主键）
 - display: 显示顺序
 - name: 用户组名称
 - description: 描述
-- source_table/source_field/source_id: 来源关联信息
+- source_table: 来源表名
+- source_field: 来源字段名
+- source_id: 来源ID
 - register: 注册位置
-- create_time/update_time
+- create_time: 创建时间
+- update_time: 更新时间
 
-示例数据：
-1 | 100 | 管理员 | (null) | ... | 0 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
-2 | 100 | 游客 | (null) | ... | 0 | 2023-07-14 15:28:12 | 2023-07-14 15:28:12
-3 | 100 | 学生用户 | (null) | student_users | student_users_id | 0 | 3 | ...
-4 | 100 | 教师用户 | (null) | teacher_users | teacher_users_id | 0 | 0 | ...
-
-## 表：article_type（文章分类）
+#### 13. article（文章）
 字段说明：
-- type_id: 分类ID
+- article_id: 文章ID（主键）
+- title: 标题
+- type: 分类
+- hits: 点击数
+- praise_len: 点赞数
+- source: 来源
+- url: 外链地址
+- tag: 标签
+- content: 内容（HTML格式）
+- img: 封面图路径
+- description: 描述
+- create_time: 创建时间
+- update_time: 更新时间
+
+#### 14. article_type（文章分类）
+字段说明：
+- type_id: 分类ID（主键）
 - display: 显示顺序
 - name: 分类名称
 - father_id: 上级分类ID
-- description/icon/url: 描述、图标、外链
-- create_time/update_time
+- description: 描述
+- icon: 图标路径
+- url: 外链地址
+- create_time: 创建时间
+- update_time: 更新时间
 
-示例数据：
-1 | 100 | 学校 | 0 | (null) | (null) | (null) | 2023-07-14 15:28:13 | 2023-07-14 15:28:13
-
-## 表：article（文章）
+#### 15. access_token（登录令牌）
 字段说明：
-- article_id: 文章ID
-- title: 标题
-- type: 分类（字符串）
-- hits/praise_len: 点击数、点赞数
-- create_time/update_time
-- source/url/tag/content/img/description
-
-示例文章标题：
-1. 党的二十大代表、校长刘雅红作学习宣传贯彻党的二十大精神专题辅导报告
-2. 校领导参加“2022广东拉美友城交流日”活动
-3. 美国开学季家长多忧愁 四成多家长担心校园安全
-4. 促爱国主义教育 香港举行“光影进校园”活动
-5. 法治宣传进校园 讲好“开学第一课”
-6. 我校22项作品在“立志·修身·博学·报国”主题教育活动中获奖
-7. 扎紧扎牢校园疫情防线 全力守护师生健康安全
-8. 学校党委常委会开展专题学习
-
-每篇文章包含完整 HTML 内容、封面图路径、发布时间等。
-
-## 表：access_token（登录令牌）
-字段说明：
-- token_id: 令牌ID
+- token_id: 令牌ID（主键）
 - token: 临时访问令牌（64位字符串）
-- info: 附加信息（本例中为 null）
-- maxage: 有效期（小时，默认2）
+- info: 附加信息
+- maxage: 有效期（小时）
 - user_id: 关联用户ID
+- create_time: 创建时间
 
-示例：大量 token 记录，user_id 均为 1（管理员）
+## 前端API接口规范
 
-## 表：user（用户账户）
-字段说明：
-- user_id: 用户ID
-- state: 账户状态（1=可用）
-- user_group: 用户组名称
-- login_time: 最后登录时间
-- phone/email 及其认证状态
-- username/nickname/password/avatar
-- create_time
+### 用户相关接口
+- `GET /api/user/info` - 获取用户信息
+- `POST /api/user/login` - 用户登录
+- `POST /api/user/logout` - 用户登出
+- `PUT /api/user/update` - 更新用户信息
+- `PUT /api/user/password` - 修改密码
 
-示例数据：
-1 | 1 | 管理员 | 2023-05-04 16:42:42 | (null) | 0 | admin | admin | bfd59291e825b5f2bbf1eb76569f8fe7 | ... | /api/upload/admin_avatar.jpg | 2023-05-30 17:35:13
+### 选题相关接口
+- `GET /api/topic` - 获取选题列表
+- `GET /api/topic/{id}` - 获取选题详情
+- `POST /api/topic` - 发布选题
+- `PUT /api/topic/{id}` - 修改选题
+- `DELETE /api/topic/{id}` - 删除选题
+- `POST /api/topic/select` - 选择选题
 
-## 表：student_users（学生用户）
-字段说明：
-- student_users_id: 学生ID
-- student_name/gender/age: 姓名、性别、年龄
-- examine_state: 审核状态（默认“已通过”）
-- recommend: 智能推荐权重
-- user_id: 关联用户ID
-- create_time/update_time
+### 论文相关接口
+- `GET /api/paper` - 获取论文列表
+- `GET /api/paper/{id}` - 获取论文详情
+- `POST /api/paper` - 提交论文
+- `PUT /api/paper/{id}` - 修改论文
+- `DELETE /api/paper/{id}` - 删除论文
 
-（当前无具体学生数据，仅表结构）
+### 答辩相关接口
+- `GET /api/defense` - 获取答辩列表
+- `GET /api/defense/{id}` - 获取答辩详情
+- `POST /api/defense` - 创建答辩
+- `PUT /api/defense/{id}` - 修改答辩
+- `DELETE /api/defense/{id}` - 删除答辩
 
-## 表：teacher_users（教师用户）
-字段说明：
-- teacher_users_id: 教师ID
-- teachers_name/gender_of_teachers/age_of_teachers
-- examine_state/recommend/user_id
-- create_time/update_time
+### 成绩相关接口
+- `GET /api/score` - 获取成绩列表
+- `GET /api/score/{id}` - 获取成绩详情
+- `POST /api/score` - 录入成绩
+- `PUT /api/score/{id}` - 修改成绩
+- `DELETE /api/score/{id}` - 删除成绩
 
-（当前无具体教师数据，仅表结构）
+### 通知公告接口
+- `GET /api/notice` - 获取公告列表
+- `GET /api/notice/{id}` - 获取公告详情
+- `POST /api/notice` - 发布公告
+- `PUT /api/notice/{id}` - 修改公告
+- `DELETE /api/notice/{id}` - 删除公告
 
-## 表：publish_topic_selection（发布选题）
-字段说明：
-- publish_topic_selection_id: 选题ID
-- release_students: 发布学生ID（当前为0）
-- student_name: 学生姓名
-- release_time: 发布日期
-- thesis_title: 论文题目（唯一）
-- question_type/title_attachment/question_details
-- topic_status/question_status
-- recommend/create_time/update_time
+### 文件上传接口
+- `POST /api/file/upload` - 上传文件
+- `GET /api/file/download/{filename}` - 下载文件
 
-示例论文题目（8条）：
-1. 论文题目1 → 题目类型1，详情1，状态1
-2. 论文题目2 → 题目类型2，详情2，状态2
-...
-8. 论文题目8
+## 答辩流程说明
 
-## 表：thesis_topic_selection（论文选题）
-字段说明：
-- thesis_topic_selection_id: 选题ID
-- thesis_title（唯一）
-- instructor: 指导教师ID（当前为0）
-- cover_photo: 封面图
-- teachers_name: 教师姓名
-- release_time/question_type/title_attachment/paper_details
-- hits/praise_len/recommend
+1. **选题阶段**：
+   - 教师发布论文选题
+   - 学生浏览并选择题目
+   - 系统确认选题分配
 
-示例数据（8条），含点击数（如969）、点赞数（如785）及封面图路径。
+2. **论文撰写阶段**：
+   - 学生按要求撰写论文
+   - 上传论文附件
+   - 教师审核论文内容
 
-## 表：topic_information（选题信息）
-记录每个论文题目的选题状态、学生、时间、备注等。
-8条示例数据，与上述题目一一对应。
+3. **答辩准备阶段**：
+   - 系统安排答辩时间地点
+   - 师生确认答辩安排
+   - 准备答辩材料
 
-## 表：paper_information（论文信息）
-字段：
-- paper_information_id
-- thesis_title/instructor/paper_type/upload_students/upload_time
-- paper_attachment/thesis_evaluation/teachers_opinion/paper_comments
+4. **答辩执行阶段**：
+   - 按时参加答辩
+   - 评审老师评分
+   - 记录答辩结果
 
-8条示例，含评优、老师意见、评语。
+5. **成绩评定阶段**：
+   - 综合各项得分
+   - 录入最终成绩
+   - 发布成绩结果
 
-## 表：defense_information（答辩信息）
-字段：
-- defense_information_id
-- thesis_title/paper_type/defense_student/defense_time
-- venue_of_defense/defense_notice/defense_status/defense_results
+## 系统技术架构
+- 前端：Vue 3 + Vue Router 4 + Pinia
+- UI库：Element Plus
+- 构建工具：Vite
+- 语言：TypeScript, Sass
+- HTTP客户端：Axios
+- AI功能：LangChain.js, OpenAI API
 
-8条示例，含答辩地点、须知、结果。
+## 常见问题解答
 
-## 表：score_information（成绩信息）
-字段：
-- score_information_id
-- thesis_title/question_type/defense_student/release_time
-- award_and_excellence_evaluation/score_details
+Q: 如何找回密码？
+A: 在登录页面点击"忘记密码"，按照提示输入注册邮箱或手机号进行密码重置。
 
-8条示例，含评奖评优和成绩详情。
+Q: 论文上传格式有什么要求？
+A: 支持PDF、DOC、DOCX格式，文件大小不超过50MB。
 
-## 其他辅助表（结构已定义，无数据或少量数据）：
-- praise（点赞）
-- hits（点击记录）
-- comment（评论）
-- collect（收藏）
+Q: 如何修改已提交的论文？
+A: 在论文管理页面找到对应论文，如果状态允许修改，可以重新上传替换。
+
+Q: 答辩时间可以修改吗？
+A: 答辩时间一般由管理员统一安排，如有特殊情况需联系相关负责人调整。
+
+Q: 如何联系技术支持？
+A: 可通过系统内消息功能联系管理员，或发送邮件至系统预留邮箱。
 
 ---
 # 总结
-该系统是一个面向高校毕业论文管理的综合平台，支持：
-- 用户角色：管理员、学生、教师、游客
-- 功能模块：公告、轮播图、文章发布、选题发布与选择、论文提交、答辩安排、成绩管理、文件上传等
-- 数据关系：通过 user_id、thesis_title 等字段关联各实体
-- 所有核心业务数据（选题、论文、答辩、成绩）均有8条示例记录，结构一致，便于批量处理
-
-此文本可直接用作 RAG 知识库，供 AI 回答关于该系统功能、数据结构、业务流程等问题。
+该系统是一个面向高校毕业论文管理的综合平台，支持用户角色管理、选题发布与选择、论文提交与评审、答辩安排与成绩管理等功能。系统采用前后端分离架构，具有良好的扩展性和维护性，能够有效提升毕业答辩流程的数字化管理水平。
