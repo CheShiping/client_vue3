@@ -38,7 +38,7 @@ const AI_AVATAR = 'https://avatars.githubusercontent.com/u/98765432'; // AIåŠ©æ‰
 </script>
 
 <template>
-  <ElScrollbar class="chat-list">
+  <ElScrollbar height="400px" class="chat-list">
     <div v-if="messages && messages.length > 0 && !(messages.length === 1 && messages[0]?.id === 'welcome')" class="chat-messages-container">
       <div
         v-for="message in messages"
@@ -139,13 +139,6 @@ const AI_AVATAR = 'https://avatars.githubusercontent.com/u/98765432'; // AIåŠ©æ‰
 
   :deep(.el-scrollbar__wrap) {
     padding: 16px;
-  }
-  :deep(.el-scrollbar_view) {
-    height:  calc(100% - 60px);
-  }
-
-  .chat-messages-container {
-    overflow-y: auto
   }
 }
 
