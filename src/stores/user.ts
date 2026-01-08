@@ -81,6 +81,7 @@ export const useUserStore = defineStore('user', () => {
   // 计算属性
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => userInfo.value.user_admin === '1' || userInfo.value.user_group === 'admin')
+  const isTeacher = computed(() => userInfo.value.user_group === 'teacher')
 
   // 方法
   function setTokenValue(newToken: string): void {
@@ -148,6 +149,7 @@ export const useUserStore = defineStore('user', () => {
     currentStudentId,
     isLoggedIn,
     isAdmin,
+    isTeacher,
     setTokenValue,
     setUserInfo,
     fetchUserInfo, // 添加此方法到返回对象

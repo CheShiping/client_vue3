@@ -8,7 +8,7 @@
     @size-change="handleSizeChange"
   >
     <template #toolbar>
-      <el-button type="primary" @click="handleAdd" v-if="userStore.isAdmin">
+      <el-button type="primary" @click="handleAdd" v-if="userStore.isAdmin || userStore.isTeacher">
         <el-icon><Plus /></el-icon>
         发布通知
       </el-button>
@@ -27,8 +27,8 @@
     <el-table-column label="操作" width="200" fixed="right">
       <template #default="{ row }">
         <el-button type="primary" link @click="handleView(row)">查看</el-button>
-        <el-button type="primary" link @click="handleEdit(row)" v-if="userStore.isAdmin">编辑</el-button>
-        <el-button type="danger" link @click="handleDelete(row)" v-if="userStore.isAdmin">删除</el-button>
+        <el-button type="primary" link @click="handleEdit(row)" v-if="userStore.isAdmin || userStore.isTeacher">编辑</el-button>
+        <el-button type="danger" link @click="handleDelete(row)" v-if="userStore.isAdmin || userStore.isTeacher">删除</el-button>
       </template>
     </el-table-column>
   </PageTable>

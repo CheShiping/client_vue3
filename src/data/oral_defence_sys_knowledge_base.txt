@@ -255,6 +255,83 @@
 - user_id: 关联用户ID
 - create_time: 创建时间
 
+let mockTeachers = getStoredTeachers() || [
+  {
+    teacher_users_id: 1,
+    teachers_name: '张老师',
+    teacher_gender: '男',
+    teacher_age: '35',
+    examine_state: '已通过',
+    recommend: 0,
+    user_id: 1,
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12',
+    employee_no: 'T001',
+    professional_title: '教授',
+    phone: '13900139001',
+    email: 'teacher1@example.com'
+  },
+  {
+    teacher_users_id: 2,
+    teachers_name: '李老师',
+    teacher_gender: '女',
+    teacher_age: '32',
+    examine_state: '已通过',
+    recommend: 0,
+    user_id: 2,
+    create_time: '2025-12-14 15:28:12',
+    update_time: '2025-12-14 15:28:12',
+    employee_no: 'T002',
+    professional_title: '副教授',
+    phone: '13900139002',
+    email: 'teacher2@example.com'
+  },
+  {
+    teacher_users_id: 3,
+    teachers_name: '王老师',
+    teacher_gender: '男',
+    teacher_age: '40',
+    examine_state: '已通过',
+    recommend: 0,
+    user_id: 8,
+    create_time: '2025-12-15 11:00:00',
+    update_time: '2025-12-15 11:00:00',
+    employee_no: 'T003',
+    professional_title: '讲师',
+    phone: '13900139003',
+    email: 'teacher3@example.com'
+  },
+  {
+    teacher_users_id: 4,
+    teachers_name: '赵老师',
+    teacher_gender: '女',
+    teacher_age: '38',
+    examine_state: '已通过',
+    recommend: 0,
+    user_id: 9,
+    create_time: '2025-12-15 11:00:00',
+    update_time: '2025-12-15 11:00:00',
+    employee_no: 'T004',
+    professional_title: '副教授',
+    phone: '13900139004',
+    email: 'teacher4@example.com'
+  },
+  {
+    teacher_users_id: 5,
+    teachers_name: '孙老师',
+    teacher_gender: '男',
+    teacher_age: '45',
+    examine_state: '已通过',
+    recommend: 0,
+    user_id: 10,
+    create_time: '2025-12-15 11:00:00',
+    update_time: '2025-12-15 11:00:00',
+    employee_no: 'T005',
+    professional_title: '教授',
+    phone: '13900139005',
+    email: 'teacher5@example.com'
+  }
+]
 ## 前端API接口规范
 
 ### 用户相关接口

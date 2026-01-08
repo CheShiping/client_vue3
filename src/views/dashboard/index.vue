@@ -47,7 +47,7 @@
             <el-tag :type="getTagType(currentNotice.type)" style="margin-right: 15px;">{{ currentNotice.type }}</el-tag>
             <span >{{ currentNotice.create_time }}</span>
           </div>
-          <div class="notice-content" v-html="currentNotice.notice_content"></div>
+          <div class="notice-content" v-html="currentNotice.content"></div>
           <template #footer>
               <el-button @click="dialogVisible = false">关闭</el-button>
           </template>
@@ -109,7 +109,7 @@ const dialogVisible = ref(false)
 const currentNotice = ref({
   notice_id: '',
   notice_title: '',
-  notice_content: '',
+  content: '',
   notice_publisher: '',
   release_time: '',
   examine_state: '',

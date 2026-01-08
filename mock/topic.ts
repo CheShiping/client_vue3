@@ -106,7 +106,7 @@ let mockTopics = getStoredTopics() || [
     topic_status: '开放', // 修改为开放状态
     topic_notes: '探讨AI在医疗领域的应用前景',
     selected_students_count: 0,
-    max_students: 1,
+    max_students: 10,
     recommend: 0,
     create_time: '2025-12-14 15:28:12',
     update_time: '2025-01-07 15:45:00'

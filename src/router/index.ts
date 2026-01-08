@@ -237,7 +237,9 @@ router.beforeEach(async (to, from, next) => {
       '/notice/form',
       '/notice/view',
       '/notice/center',
-      '/chat'
+      '/chat',
+      '/user/info',
+      '/user/password',
     ]
     
     // 检查完整路径是否在允许列表中

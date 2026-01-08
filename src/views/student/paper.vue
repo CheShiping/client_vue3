@@ -100,7 +100,7 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="评优等级" prop="thesis_evaluation">
-              <el-select v-model="formData.thesis_evaluation" placeholder="请选择评优等级" style="width: 100%">
+              <el-select         :disabled="formMode === 'view'" v-model="formData.thesis_evaluation" placeholder="请选择评优等级" style="width: 100%">
                 <el-option label="优秀" value="优秀" />
                 <el-option label="良好" value="良好" />
                 <el-option label="中等" value="中等" />

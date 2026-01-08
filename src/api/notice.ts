@@ -5,15 +5,17 @@ import { AxiosPromise } from 'axios'
 interface NoticeListParams {
   page?: number
   size?: number
-  title?: string
+  notice_title?: string
 }
 
 // 通知信息
 interface NoticeInfo {
   notice_id: number
-  title: string
+  notice_title: string
   type: string
   content: string
+  notice_publisher?: string
+  release_time?: string
   create_time: string
   update_time: string
 }

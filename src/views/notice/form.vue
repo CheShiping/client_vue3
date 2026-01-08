@@ -11,8 +11,8 @@
       :rules="rules"
       label-width="100px"
     >
-      <el-form-item label="标题" prop="title">
-        <el-input v-model="formData.title" placeholder="请输入标题" />
+      <el-form-item label="标题" prop="notice_title">
+        <el-input v-model="formData.notice_title" placeholder="请输入标题" />
       </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="formData.type" placeholder="请选择类型" style="width: 100%">
@@ -43,6 +43,7 @@
 import { ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { addNotice, updateNotice } from '@/api/notice'
+import { useUserStore } from '@/stores/user'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -51,19 +52,21 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'success'])
 
+const userStore = useUserStore()
+
 const visible = ref(false)
 const formRef = ref(null)
 const loading = ref(false)
 
 const formData = reactive({
   notice_id: 0,
-  title: '',
+  notice_title: '',
   type: '公告',
   content: ''
 })
 
 const rules = {
-  title: [
+  notice_title: [
     { required: true, message: '请输入标题', trigger: 'blur' }
   ],
   type: [
@@ -81,7 +84,7 @@ watch(() => props.modelValue, (val) => {
   } else if (val) {
     Object.assign(formData, {
       notice_id: 0,
-      title: '',
+      notice_title: '',
       type: '公告',
       content: ''
     })
@@ -108,7 +111,14 @@ const handleSubmit = async () => {
           await updateNotice(formData.notice_id, formData)
           ElMessage.success('更新成功')
         } else {
-          await addNotice(formData)
+          // 添加发布者信息和发布时间
+          const now = new Date()
+          const noticeData = {
+            ...formData,
+            notice_publisher: userStore.userInfo.nickname || userStore.userInfo.username,
+            release_time: now.toISOString().slice(0, 19).replace('T', ' ')
+          }
+          await addNotice(noticeData)
           ElMessage.success('发布成功')
         }
         emit('success')
