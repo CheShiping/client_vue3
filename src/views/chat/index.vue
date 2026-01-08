@@ -43,15 +43,17 @@ const { transformStyle } = useDialogDrag(modalTitleRef);
 // 监听 open 属性变化，当对话框打开时重置消息
 watch(() => props.open, (newOpen) => {
   if (newOpen) {
-    // 对话框打开时，重置消息列表
-    messages.value = [
-      {
-        id: 'welcome',
-        content: '你好！我是橙汁儿AI助理，有什么我可以帮你的吗？',
-        role: 'assistant',
-        status: 'success'
-      }
-    ];
+    // 对话框打开时，如果还没有任何消息，则显示欢迎消息
+    if (messages.value.length === 0) {
+      messages.value = [
+        {
+          id: 'welcome',
+          content: '你好！我是橙汁儿AI助理，有什么我可以帮你的吗？',
+          role: 'assistant',
+          status: 'success'
+        }
+      ];
+    }
     // 重置其他状态
     inputValue.value = '';
     isLoading.value = false;
@@ -123,12 +125,6 @@ const handleUserSubmit = async (value: string) => {
           if (scrollHeight && clientHeight) {
             scrollbar.setScrollTop(scrollHeight - clientHeight);
           }
-        } else {
-          // 降级到原始方法
-          const container = document.querySelector('.el-scrollbar__wrap');
-          if (container) {
-            container.scrollTop = container.scrollHeight;
-          }
         }
       });
     }
@@ -161,7 +157,6 @@ const handleClose = () => {
   // 如果正在加载，只中断请求但不改变消息状态
   if (isLoading.value && abortController.value) {
     abortController.value.abort();
-    // 不再清除消息，保持现有对话内容
   }
   emit('update:open', false);
 };
