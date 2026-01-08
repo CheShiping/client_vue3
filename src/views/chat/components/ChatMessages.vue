@@ -5,6 +5,7 @@ import {
   DocumentCopy,
   CircleClose, Position
 } from '@element-plus/icons-vue';
+import { ref } from 'vue';
 
 defineProps<{
   messages: {
@@ -24,6 +25,9 @@ const emit = defineEmits<{
   (e: 'question-click', question: string): void;
 }>();
 
+// 创建对ElScrollbar的引用
+const scrollbarRef = ref();
+
 const MOCK_QUESTIONS = [
   '你好，你能帮我做什么？',
   '请介绍一下你自己',
@@ -35,10 +39,15 @@ const AGENT_PLACEHOLDER = 'AI助手正在思考中...';
 // 定义头像URL
 const USER_AVATAR = 'https://avatars.githubusercontent.com/u/12345678'; // 用户头像占位符
 const AI_AVATAR = 'https://avatars.githubusercontent.com/u/98765432'; // AI助手头像占位符
+
+// 暴露内部的scrollbar引用，供父组件使用
+defineExpose({
+  scrollbarRef
+});
 </script>
 
 <template>
-  <ElScrollbar height="400px" class="chat-list">
+  <ElScrollbar ref="scrollbarRef" height="400px" class="chat-list">
     <div v-if="messages && messages.length > 0 && !(messages.length === 1 && messages[0]?.id === 'welcome')" class="chat-messages-container">
       <div
         v-for="message in messages"

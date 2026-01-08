@@ -27,6 +27,7 @@ interface ChatMessage {
 
 // refs
 const chatHeaderRef = ref<InstanceType<typeof ChatHeader> | null>(null);
+const chatMessagesRef = ref<InstanceType<typeof ChatMessages> | null>(null);
 
 // ==================== State ====================
 const inputValue = ref('');
@@ -112,9 +113,22 @@ const handleUserSubmit = async (value: string) => {
 
       // 滚动到底部
       nextTick(() => {
-        const container = document.querySelector('.el-scrollbar__wrap');
-        if (container) {
-          container.scrollTop = container.scrollHeight;
+        // 使用暴露的scrollbarRef
+        if (chatMessagesRef.value?.scrollbarRef) {
+          const scrollbar = chatMessagesRef.value.scrollbarRef;
+          // 获取滚动容器的滚动高度并滚动到底部
+          const scrollHeight = scrollbar.wrapRef?.scrollHeight;
+          const clientHeight = scrollbar.wrapRef?.clientHeight;
+          
+          if (scrollHeight && clientHeight) {
+            scrollbar.setScrollTop(scrollHeight - clientHeight);
+          }
+        } else {
+          // 降级到原始方法
+          const container = document.querySelector('.el-scrollbar__wrap');
+          if (container) {
+            container.scrollTop = container.scrollHeight;
+          }
         }
       });
     }
@@ -228,6 +242,7 @@ const handleQuickQuestion = (question: string) => {
 
       <!-- 对话区 - 消息列表 -->
       <ChatMessages
+        ref="chatMessagesRef"
         :messages="messages"
         :is-loading="isLoading"
         @retry="handleRetry"
