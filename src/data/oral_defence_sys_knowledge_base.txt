@@ -331,14 +331,6 @@
    - 录入最终成绩
    - 发布成绩结果
 
-## 系统技术架构
-- 前端：Vue 3 + Vue Router 4 + Pinia
-- UI库：Element Plus
-- 构建工具：Vite
-- 语言：TypeScript, Sass
-- HTTP客户端：Axios
-- AI功能：LangChain.js, OpenAI API
-
 ## 常见问题解答
 
 Q: 如何找回密码？
