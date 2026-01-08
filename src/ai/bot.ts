@@ -6,7 +6,15 @@ import { Document } from "@langchain/core/documents";
 import { RunnableSequence } from "@langchain/core/runnables";
 import knowledgeText from '../data/oral_defence_sys_knowledge_base.txt?raw';
 import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages"; // 添加 SystemMessage 导入
+import { HumanMessage, SystemMessage, BaseMessage } from "@langchain/core/messages"; // 添加 BaseMessage 导入
+
+// 定义消息类型接口
+interface ChatMessage {
+  id?: string;
+  content: string;
+  role: 'user' | 'assistant';
+  status?: 'sending' | 'success' | 'error';
+}
 
 class Bot {
   questions: string[] = [];
@@ -95,8 +103,14 @@ class Bot {
     return documents.map((document) => document.pageContent).join("\n");
   }
 
-  // 流式处理版本的ask方法，支持中断
-  async askStreaming(question: string, options?: { signal?: AbortSignal }) {
+  // 流式处理版本的ask方法，支持中断和上下文
+  async askStreaming(
+    question: string, 
+    options?: { 
+      signal?: AbortSignal,
+      context?: ChatMessage[]
+    }
+  ) {
     // 确保已经初始化
     if (!this.isInitialized) {
       await this.init();
@@ -128,11 +142,26 @@ class Bot {
           this.systemPrompt.replace("{context}", input.context)
         );
         
-        // 调用模型并获取流式响应，传递 signal 用于中断请求
-        const stream = await this.chatModel.stream([
+        // 准备上下文消息
+        const contextMessages: BaseMessage[] = [];
+        if (options?.context) {
+          for (const ctxMsg of options.context) {
+            if (ctxMsg.role === 'user') {
+              contextMessages.push(new HumanMessage(ctxMsg.content));
+            } else if (ctxMsg.role === 'assistant') {
+              contextMessages.push(new SystemMessage(ctxMsg.content)); // 或者使用AIMessage，如果可用
+            }
+          }
+        }
+        
+        // 调用模型并获取流式响应，传递信号用于中断请求
+        const messages = [
           systemMessage,
-          new HumanMessage(input.question)
-        ], {
+          ...contextMessages, // 添加上下文消息
+          new HumanMessage(input.question) // 添加当前问题
+        ];
+        
+        const stream = await this.chatModel.stream(messages, {
           signal: options?.signal
         });
 
@@ -140,7 +169,7 @@ class Bot {
       }
     ]);
     
-    // 调用模型并获取流式响应，传递 signal 用于中断请求
+    // 调用模型并获取流式响应，传递信号用于中断请求
     const stream = await this.streamingRagChain.stream({ question }, {
       signal: options?.signal
     });
@@ -172,7 +201,7 @@ class Bot {
 以下是原文中跟用户回答相关的内容：
 {context}
 
-现在，你需要基于原文，回答以下问题：
+现在，你需要基于原文和对话上下文，回答以下问题：
 `;
   }
 }

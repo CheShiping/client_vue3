@@ -25,6 +25,9 @@ interface ChatMessage {
   status?: 'sending' | 'success' | 'error';
 }
 
+// localStorage 键名
+const CHAT_HISTORY_KEY = 'thesis_management_chat_history';
+
 // refs
 const chatHeaderRef = ref<InstanceType<typeof ChatHeader> | null>(null);
 const chatMessagesRef = ref<InstanceType<typeof ChatMessages> | null>(null);
@@ -36,6 +39,40 @@ const messages = ref<ChatMessage[]>([]);
 const isLoading = ref(false);
 const abortController = ref<AbortController | null>(null);
 
+// 从 localStorage 加载聊天历史
+const loadChatHistory = () => {
+  try {
+    const stored = localStorage.getItem(CHAT_HISTORY_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error('加载聊天历史失败:', error);
+  }
+  return [];
+};
+
+// 保存聊天历史到 localStorage
+const saveChatHistory = (chatMessages: ChatMessage[]) => {
+  try {
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatMessages));
+  } catch (error) {
+    console.error('保存聊天历史失败:', error);
+  }
+};
+
+// 清空聊天历史
+const clearChatHistory = () => {
+  try {
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+  } catch (error) {
+    console.error('清空聊天历史失败:', error);
+  }
+};
+
 // 使用拖拽功能
 const modalTitleRef = computed(() => chatHeaderRef.value?.modalTitleRef || null);
 const { transformStyle } = useDialogDrag(modalTitleRef);
@@ -43,8 +80,12 @@ const { transformStyle } = useDialogDrag(modalTitleRef);
 // 监听 open 属性变化，当对话框打开时重置消息
 watch(() => props.open, (newOpen) => {
   if (newOpen) {
-    // 对话框打开时，如果还没有任何消息，则显示欢迎消息
-    if (messages.value.length === 0) {
+    // 对话框打开时，从 localStorage 加载聊天历史
+    const storedMessages = loadChatHistory();
+    if (storedMessages.length > 0) {
+      messages.value = storedMessages;
+    } else {
+      // 如果没有历史消息，则显示欢迎消息
       messages.value = [
         {
           id: 'welcome',
@@ -62,7 +103,10 @@ watch(() => props.open, (newOpen) => {
       abortController.value = null;
     }
   } else {
-    // 对话框关闭时，不重置消息，保持对话历史
+    // 对话框关闭时，保存消息到 localStorage
+    if (messages.value.length > 0) {
+      saveChatHistory(messages.value);
+    }
   }
 }, { immediate: true });
 
@@ -96,8 +140,15 @@ const handleUserSubmit = async (value: string) => {
     // 创建新的 AbortController 用于可能的请求中断
     abortController.value = new AbortController();
 
-    // 用流式聊天函数
-    const stream = await bot.askStreaming(value, { signal: abortController.value.signal });
+    // 准备上下文消息 - 只取最近的几条消息，避免超出模型限制
+    const recentMessages = [...messages.value]; // 包含本次用户输入的消息
+    const contextMessages = recentMessages.slice(-10); // 只取最近10条消息
+    
+    // 用流式聊天函数，并传入上下文
+    const stream = await bot.askStreaming(value, { 
+      signal: abortController.value.signal,
+      context: contextMessages.filter(msg => msg.id !== aiMessageId) // 不包含AI回复占位符
+    });
 
     // 逐块处理流式响应
     for await (const chunk of stream) {
@@ -150,6 +201,8 @@ const handleUserSubmit = async (value: string) => {
     }
   } finally {
     isLoading.value = false;
+    // 消息处理完成后，保存聊天历史
+    saveChatHistory(messages.value);
   }
 };
 
@@ -157,6 +210,10 @@ const handleClose = () => {
   // 如果正在加载，只中断请求但不改变消息状态
   if (isLoading.value && abortController.value) {
     abortController.value.abort();
+  }
+  // 关闭前保存聊天历史
+  if (messages.value.length > 0) {
+    saveChatHistory(messages.value);
   }
   emit('update:open', false);
 };
@@ -181,6 +238,8 @@ const handleClearMessages = () => {
     role: 'assistant',
     status: 'success'
   }];
+  // 清空历史记录
+  clearChatHistory();
 };
 
 const handleRetry = (messageId: string) => {
