@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答辩系统诊断工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #409EFF;
+        }
+        .success {
+            color: #67C23A;
+            font-weight: bold;
+        }
+        .error {
+            color: #F56C6C;
+            font-weight: bold;
+        }
+        .warning {
+            color: #E6A23C;
+            font-weight: bold;
+        }
+        button {
+            background: #409EFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #66b1ff;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .info {
+            background: #ecf5ff;
+            border: 1px solid #b3d8ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 答辩系统诊断工具</h1>
+        
+        <div class="section">
+            <h2>步骤 1：检查登录状态</h2>
+            <button onclick="checkLoginStatus()">检查登录信息</button>
+            <div id="loginStatus"></div>
+        </div>
+
+        <div class="section">
+            <h2>步骤 2：测试登录 API</h2>
+            <button onclick="testLogin()">测试登录（student001）</button>
+            <div id="loginTest"></div>
+        </div>
+
+        <div class="section">
+            <h2>步骤 3：清除并重新登录</h2>
+            <button onclick="clearAndReload()">清除缓存并刷新</button>
+            <div class="info">
+                <strong>说明：</strong>点击此按钮会清除 localStorage 并刷新页面，然后您需要重新登录。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>步骤 4：查看详细信息</h2>
+            <button onclick="showDetails()">显示详细信息</button>
+            <div id="details"></div>
+        </div>
+    </div>
+
+    <script>
+        function checkLoginStatus() {
+            const statusDiv = document.getElementById('loginStatus');
+            try {
+                const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                
+                let html = '<h3>当前登录信息：</h3>';
+                html += '<pre>' + JSON.stringify(userInfo, null, 2) + '</pre>';
+                
+                // 检查关键字段
+                html += '<h3>诊断结果：</h3>';
+                html += '<ul>';
+                
+                if (userInfo.user_id) {
+                    html += '<li class="success">✓ user_id 存在: ' + userInfo.user_id + '</li>';
+                } else {
+                    html += '<li class="error">✗ user_id 不存在</li>';
+                }
+                
+                if (userInfo.username) {
+                    html += '<li class="success">✓ username 存在: ' + userInfo.username + '</li>';
+                } else {
+                    html += '<li class="error">✗ username 不存在</li>';
+                }
+                
+                if (userInfo.user_group) {
+                    html += '<li class="success">✓ user_group 存在: ' + userInfo.user_group + '</li>';
+                } else {
+                    html += '<li class="error">✗ user_group 不存在</li>';
+                }
+                
+                if (userInfo.student_id) {
+                    html += '<li class="success">✓ student_id 存在: ' + userInfo.student_id + '</li>';
+                    html += '<li class="success"><strong>可以上传文件！</strong></li>';
+                } else {
+                    html += '<li class="error">✗ student_id 不存在</li>';
+                    html += '<li class="error"><strong>无法上传文件！需要重新登录。</strong></li>';
+                }
+                
+                html += '</ul>';
+                
+                statusDiv.innerHTML = html;
+            } catch (error) {
+                statusDiv.innerHTML = '<p class="error">错误：' + error.message + '</p>';
+            }
+        }
+
+        async function testLogin() {
+            const testDiv = document.getElementById('loginTest');
+            testDiv.innerHTML = '<p>正在测试登录...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'student001',
+                        password: '123456'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>登录 API 响应：</h3>';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                if (data.result && data.result.obj) {
+                    const obj = data.result.obj;
+                    html += '<h3>诊断结果：</h3>';
+                    html += '<ul>';
+                    
+                    if (obj.student_id) {
+                        html += '<li class="success">✓ API 返回了 student_id: ' + obj.student_id + '</li>';
+                        html += '<li class="success"><strong>登录 API 工作正常！</strong></li>';
+                        html += '<li class="info">建议：请退出登录，然后重新登录。</li>';
+                    } else {
+                        html += '<li class="error">✗ API 没有返回 student_id</li>';
+                        html += '<li class="error"><strong>登录 API 有问题！</strong></li>';
+                    }
+                    
+                    html += '</ul>';
+                }
+                
+                testDiv.innerHTML = html;
+            } catch (error) {
+                testDiv.innerHTML = '<p class="error">错误：' + error.message + '</p>';
+            }
+        }
+
+        function clearAndReload() {
+            if (confirm('确定要清除 localStorage 并刷新页面吗？\n\n清除后您需要重新登录。')) {
+                localStorage.clear();
+                alert('localStorage 已清除！\n\n页面即将刷新，请重新登录。');
+                window.location.reload();
+            }
+        }
+
+        function showDetails() {
+            const detailsDiv = document.getElementById('details');
+            
+            let html = '<h3>完整诊断信息：</h3>';
+            
+            // localStorage 内容
+            html += '<h4>1. localStorage 内容：</h4>';
+            html += '<pre>';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                html += key + ': ' + value + '\n';
+            }
+            html += '</pre>';
+            
+            // 当前 URL
+            html += '<h4>2. 当前 URL：</h4>';
+            html += '<pre>' + window.location.href + '</pre>';
+            
+            // 浏览器信息
+            html += '<h4>3. 浏览器信息：</h4>';
+            html += '<pre>' + navigator.userAgent + '</pre>';
+            
+            detailsDiv.innerHTML = html;
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkLoginStatus();
+        };
+    </script>
+</body>
+</html>

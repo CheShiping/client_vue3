@@ -121,7 +121,10 @@ import {
   List,
   ChatLineRound,
   Calendar,
-  Bell
+  Bell,
+  Place,
+  Edit,
+  TrendCharts
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -149,7 +152,10 @@ const iconComponents = {
   List,
   ChatLineRound,
   Calendar,
-  Bell
+  Bell,
+  Place,
+  Edit,
+  TrendCharts
 }
 
 // 当前激活的菜单
@@ -172,10 +178,10 @@ const getFilteredRoutes = (allRoutes) => {
     const adminExcludedRoutes = ['student/score']
     return allRoutes.filter(r => !adminExcludedRoutes.includes(r.path))
   } else if (userStore.userInfo.user_group === 'teacher') {
-    const teacherRoutes = ['dashboard', 'notice/list', 'defense/list', 'score/list', 'notice/center', 'defense-plan/list', 'defense-group/list', 'defense-score/list']
+    const teacherRoutes = ['dashboard', 'notice/list', 'score/list', 'defense-plan/list', 'defense-group/list', 'defense-score/list', 'defense-record/list', 'defense-material/list', 'defense-venue/list', 'score-criteria/list', 'defense-record/manage', 'notification/center', 'statistics/dashboard']
     return allRoutes.filter(r => teacherRoutes.includes(r.path))
   } else if (userStore.userInfo.user_group === 'student') {
-    const studentRoutes = ['dashboard', 'student/score', 'notice/center', 'defense-plan/list', 'defense-group/list', 'defense-score/list']
+    const studentRoutes = ['dashboard', 'student/score', 'defense-plan/list', 'defense-group/list', 'defense-score/list', 'defense-record/list', 'defense-material/list', 'notification/center']
     return allRoutes.filter(r => studentRoutes.includes(r.path))
   }
   return []

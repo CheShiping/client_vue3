@@ -111,3 +111,14 @@ export function downloadDefenseRecordFile(fileId: number): AxiosPromise<Blob> {
     responseType: 'blob'
   })
 }
+
+/**
+ * 保存答辩记录（新增或更新）
+ */
+export function saveDefenseRecord(data: any): AxiosPromise<any> {
+  if (data.id) {
+    return updateDefenseRecord(data.id, data)
+  } else {
+    return addDefenseRecord(data)
+  }
+}

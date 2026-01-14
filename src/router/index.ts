@@ -170,6 +170,83 @@ const routes: RouteRecordRaw[] = [
           icon: 'Bell',
           requiresAuth: true
         }
+      },
+      // 答辩材料管理
+      {
+        path: 'defense-material/list',
+        name: 'DefenseMaterialList',
+        component: () => import('@/views/defense-material/list.vue'),
+        meta: {
+          title: '答辩材料',
+          icon: 'Document',
+          requiresAuth: true
+        }
+      },
+      // 答辩场地管理
+      {
+        path: 'defense-venue/list',
+        name: 'DefenseVenueList',
+        component: () => import('@/views/defense-venue/list.vue'),
+        meta: {
+          title: '答辩场地',
+          icon: 'Place',
+          requiresAuth: true
+        }
+      },
+      // 评分标准管理
+      {
+        path: 'score-criteria/list',
+        name: 'ScoreCriteriaList',
+        component: () => import('@/views/score-criteria/list.vue'),
+        meta: {
+          title: '评分标准',
+          icon: 'Edit',
+          requiresAuth: true
+        }
+      },
+      // 教师评分
+      {
+        path: 'teacher-score/form',
+        name: 'TeacherScoreForm',
+        component: () => import('@/views/teacher-score/form.vue'),
+        meta: {
+          title: '教师评分',
+          requiresAuth: true,
+          showInMenu: false
+        }
+      },
+      // 答辩记录管理
+      {
+        path: 'defense-record/manage',
+        name: 'DefenseRecordManage',
+        component: () => import('@/views/defense-record/manage.vue'),
+        meta: {
+          title: '答辩记录管理',
+          icon: 'Document',
+          requiresAuth: true
+        }
+      },
+      // 通知中心
+      {
+        path: 'notification/center',
+        name: 'NotificationCenter',
+        component: () => import('@/views/notification/center.vue'),
+        meta: {
+          title: '通知中心',
+          icon: 'Bell',
+          requiresAuth: true
+        }
+      },
+      // 统计分析
+      {
+        path: 'statistics/dashboard',
+        name: 'StatisticsDashboard',
+        component: () => import('@/views/statistics/dashboard.vue'),
+        meta: {
+          title: '统计分析',
+          icon: 'TrendCharts',
+          requiresAuth: true
+        }
       }
     ]
   },
@@ -271,6 +348,13 @@ router.beforeEach(async (to, from, next) => {
       '/chat',
       '/user/info',
       '/user/password',
+      '/defense-material/list',
+      '/defense-venue/list',
+      '/score-criteria/list',
+      '/teacher-score/form',
+      '/defense-record/manage',
+      '/notification/center',
+      '/statistics/dashboard',
     ]
     
     // 检查完整路径是否在允许列表中
@@ -309,7 +393,9 @@ router.beforeEach(async (to, from, next) => {
       '/notice/center',
       '/chat',
       '/user/info',
-      '/user/password'
+      '/user/password',
+      '/defense-material/list',
+      '/notification/center'
     ]
     
     // 检查完整路径是否在允许列表中

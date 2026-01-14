@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传问题 - 一键修复</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        .success { color: #52c41a; }
+        .error { color: #f5222d; }
+        .warning { color: #faad14; }
+        .info { color: #1890ff; }
+        
+        .big-button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(82, 196, 26, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f5222d 0%, #cf1322 100%);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 34, 45, 0.4);
+        }
+        .account-info {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .account-info h3 {
+            color: #0050b3;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .account-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .account-info code {
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d4380d;
+        }
+        .steps {
+            background: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .steps h3 {
+            color: #d46b08;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .steps ol {
+            margin-left: 20px;
+        }
+        .steps li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .result pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 文件上传问题修复工具</h1>
+        <p class="subtitle">自动诊断并修复学生文件上传问题</p>
+
+        <div class="status" id="statusBox">
+            <div class="status-item">
+                <span class="icon">🔍</span>
+                <span>正在检查系统状态...</span>
+            </div>
+        </div>
+
+        <button class="big-button btn-primary" onclick="diagnose()">
+            🔍 开始诊断
+        </button>
+
+        <button class="big-button btn-danger" onclick="fixProblem()" id="fixButton" style="display: none;">
+            🔧 一键修复（清除缓存）
+        </button>
+
+        <button class="big-button btn-success" onclick="goToSystem()" id="goButton" style="display: none;">
+            ✅ 前往系统登录
+        </button>
+
+        <div class="account-info">
+            <h3>📝 测试账号</h3>
+            <p><strong>学生账号：</strong></p>
+            <p>用户名：<code>student001</code> （注意是三个零）</p>
+            <p>密码：<code>123456</code></p>
+            <br>
+            <p><strong>教师账号：</strong></p>
+            <p>用户名：<code>teacher001</code></p>
+            <p>密码：<code>123456</code></p>
+        </div>
+
+        <div class="steps">
+            <h3>📋 修复步骤</h3>
+            <ol>
+                <li>点击"开始诊断"按钮</li>
+                <li>如果发现问题，点击"一键修复"</li>
+                <li>点击"前往系统登录"</li>
+                <li>使用 <code>student001</code> / <code>123456</code> 登录</li>
+                <li>进入"答辩材料管理"上传文件</li>
+            </ol>
+        </div>
+
+        <div class="result" id="resultBox"></div>
+    </div>
+
+    <script>
+        let diagnosisResult = null;
+
+        async function diagnose() {
+            const statusBox = document.getElementById('statusBox');
+            const resultBox = document.getElementById('resultBox');
+            const fixButton = document.getElementById('fixButton');
+            const goButton = document.getElementById('goButton');
+            
+            statusBox.innerHTML = '<div class="status-item"><span class="loading"></span><span style="margin-left: 10px;">正在诊断...</span></div>';
+            resultBox.classList.remove('show');
+            fixButton.style.display = 'none';
+            goButton.style.display = 'none';
+
+            // 检查 localStorage
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            
+            // 测试登录 API
+            let apiResult = null;
+            try {
+                const response = await fetch('http://localhost:5000/api/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'student001', password: '123456' })
+                });
+                apiResult = await response.json();
+            } catch (error) {
+                apiResult = { error: { message: '无法连接到后端服务器' } };
+            }
+
+            // 生成诊断报告
+            let html = '';
+            let hasStudentId = !!userInfo.student_id;
+            let apiHasStudentId = apiResult?.result?.obj?.student_id;
+            let needsFix = !hasStudentId;
+
+            html += '<div class="status-item">';
+            html += '<span class="icon ' + (userInfo.user_id ? 'success' : 'error') + '">' + (userInfo.user_id ? '✅' : '❌') + '</span>';
+            html += '<span>登录状态：' + (userInfo.user_id ? '已登录' : '未登录') + '</span>';
+            html += '</div>';
+
+            html += '<div class="status-item">';
+            html += '<span class="icon ' + (hasStudentId ? 'success' : 'error') + '">' + (hasStudentId ? '✅' : '❌') + '</span>';
+            html += '<span>student_id：' + (hasStudentId ? userInfo.student_id : '不存在') + '</span>';
+            html += '</div>';
+
+            html += '<div class="status-item">';
+            html += '<span class="icon ' + (apiHasStudentId ? 'success' : 'error') + '">' + (apiHasStudentId ? '✅' : '❌') + '</span>';
+            html += '<span>登录 API：' + (apiHasStudentId ? '正常' : '异常') + '</span>';
+            html += '</div>';
+
+            statusBox.innerHTML = html;
+
+            // 显示详细结果
+            let resultHtml = '<h3>📊 诊断详情</h3>';
+            
+            if (hasStudentId) {
+                resultHtml += '<div style="background: #f6ffed; border: 1px solid #b7eb8f; padding: 15px; border-radius: 8px;">';
+                resultHtml += '<p style="color: #52c41a; font-weight: bold; margin-bottom: 10px;">✅ 系统状态正常！</p>';
+                resultHtml += '<p>您的账号已正确登录，可以上传文件。</p>';
+                resultHtml += '<p style="margin-top: 10px;">当前用户信息：</p>';
+                resultHtml += '<pre>' + JSON.stringify(userInfo, null, 2) + '</pre>';
+                resultHtml += '</div>';
+                goButton.style.display = 'block';
+            } else if (apiHasStudentId) {
+                resultHtml += '<div style="background: #fff7e6; border: 1px solid #ffd591; padding: 15px; border-radius: 8px;">';
+                resultHtml += '<p style="color: #d46b08; font-weight: bold; margin-bottom: 10px;">⚠️ 需要重新登录</p>';
+                resultHtml += '<p>登录 API 工作正常，但浏览器缓存中的数据不完整。</p>';
+                resultHtml += '<p style="margin-top: 10px;"><strong>解决方案：</strong></p>';
+                resultHtml += '<ol style="margin-left: 20px; margin-top: 5px;">';
+                resultHtml += '<li>点击下方"一键修复"按钮清除缓存</li>';
+                resultHtml += '<li>使用 student001 / 123456 重新登录</li>';
+                resultHtml += '</ol>';
+                resultHtml += '</div>';
+                fixButton.style.display = 'block';
+            } else {
+                resultHtml += '<div style="background: #fff2e8; border: 1px solid #ffbb96; padding: 15px; border-radius: 8px;">';
+                resultHtml += '<p style="color: #d4380d; font-weight: bold; margin-bottom: 10px;">❌ 后端服务异常</p>';
+                resultHtml += '<p>无法连接到后端服务器或登录 API 返回异常。</p>';
+                resultHtml += '<p style="margin-top: 10px;"><strong>请检查：</strong></p>';
+                resultHtml += '<ol style="margin-left: 20px; margin-top: 5px;">';
+                resultHtml += '<li>后端服务器是否运行（端口 5000）</li>';
+                resultHtml += '<li>数据库是否正常连接</li>';
+                resultHtml += '<li>测试账号是否存在</li>';
+                resultHtml += '</ol>';
+                resultHtml += '<p style="margin-top: 10px;">API 响应：</p>';
+                resultHtml += '<pre>' + JSON.stringify(apiResult, null, 2) + '</pre>';
+                resultHtml += '</div>';
+            }
+
+            resultBox.innerHTML = resultHtml;
+            resultBox.classList.add('show');
+            
+            diagnosisResult = { hasStudentId, apiHasStudentId, needsFix };
+        }
+
+        function fixProblem() {
+            if (confirm('确定要清除浏览器缓存吗？\n\n清除后您需要重新登录系统。')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                alert('✅ 缓存已清除！\n\n请点击"前往系统登录"按钮，然后使用以下账号登录：\n\n用户名：student001\n密码：123456');
+                
+                document.getElementById('fixButton').style.display = 'none';
+                document.getElementById('goButton').style.display = 'block';
+                
+                // 重新诊断
+                setTimeout(() => {
+                    diagnose();
+                }, 500);
+            }
+        }
+
+        function goToSystem() {
+            window.open('http://localhost:3003', '_blank');
+        }
+
+        // 页面加载时自动诊断
+        window.onload = function() {
+            setTimeout(() => {
+                diagnose();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

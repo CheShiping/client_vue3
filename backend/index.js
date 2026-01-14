@@ -259,6 +259,112 @@ async function initDatabase() {
     `);
     console.log('通知表创建成功');
     
+    // 创建答辩场地表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS defense_venues (
+        venue_id INT PRIMARY KEY AUTO_INCREMENT,
+        venue_name VARCHAR(100) NOT NULL,
+        venue_location VARCHAR(255) NOT NULL,
+        capacity INT NOT NULL,
+        equipment TEXT,
+        status TINYINT DEFAULT 1,
+        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('答辩场地表创建成功');
+    
+    // 创建答辩材料表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS defense_materials (
+        material_id INT PRIMARY KEY AUTO_INCREMENT,
+        student_id INT NOT NULL,
+        material_type VARCHAR(50) NOT NULL,
+        material_name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(255) NOT NULL,
+        file_size BIGINT,
+        upload_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        status TINYINT DEFAULT 1,
+        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('答辩材料表创建成功');
+    
+    // 创建评分标准表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS score_criteria (
+        criteria_id INT PRIMARY KEY AUTO_INCREMENT,
+        plan_id INT NOT NULL,
+        criteria_name VARCHAR(100) NOT NULL,
+        criteria_desc TEXT,
+        weight DECIMAL(5,2) NOT NULL,
+        full_score DECIMAL(5,2) NOT NULL,
+        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (plan_id) REFERENCES defense_plans(plan_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('评分标准表创建成功');
+    
+    // 创建答辩评分表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS defense_scores (
+        score_id INT PRIMARY KEY AUTO_INCREMENT,
+        student_id INT NOT NULL,
+        teacher_id INT NOT NULL,
+        criteria_id INT NOT NULL,
+        score DECIMAL(5,2) NOT NULL,
+        final_score DECIMAL(5,2),
+        comments TEXT,
+        score_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(student_id),
+        FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id),
+        FOREIGN KEY (criteria_id) REFERENCES score_criteria(criteria_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('答辩评分表创建成功');
+    
+    // 创建答辩记录表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS defense_records (
+        record_id INT PRIMARY KEY AUTO_INCREMENT,
+        student_id INT NOT NULL,
+        group_id INT NOT NULL,
+        defense_date DATETIME NOT NULL,
+        start_time DATETIME,
+        end_time DATETIME,
+        attendance_status TINYINT DEFAULT 1,
+        defense_process TEXT,
+        questions TEXT,
+        answers TEXT,
+        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(student_id),
+        FOREIGN KEY (group_id) REFERENCES defense_groups(group_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('答辩记录表创建成功');
+    
+    // 创建用户通知表
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        is_read TINYINT DEFAULT 0,
+        read_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
+    console.log('用户通知表创建成功');
+    
     // 插入默认管理员用户
     const [existingUsers] = await connection.execute('SELECT * FROM users WHERE username = ?', ['admin']);
     if (existingUsers.length === 0) {
@@ -367,18 +473,42 @@ app.post('/api/user/login', async (req, res) => {
     // 生成token（实际项目中应该使用JWT）
     const token = 'mock_token_' + Date.now();
     
+    const userInfo = {
+      token,
+      user_id: user.user_id,
+      username: user.username,
+      nickname: user.nickname,
+      phone: user.phone,
+      email: user.email,
+      user_group: user.user_group,
+      avatar: user.avatar
+    };
+    
+    // 如果是学生，获取 student_id
+    if (user.user_group === 'student') {
+      const [studentRows] = await pool.query(
+        'SELECT student_id FROM students WHERE user_id = ?',
+        [user.user_id]
+      );
+      if (studentRows.length > 0) {
+        userInfo.student_id = studentRows[0].student_id;
+      }
+    }
+    
+    // 如果是教师，获取 teacher_id
+    if (user.user_group === 'teacher') {
+      const [teacherRows] = await pool.query(
+        'SELECT teacher_id FROM teachers WHERE user_id = ?',
+        [user.user_id]
+      );
+      if (teacherRows.length > 0) {
+        userInfo.teacher_id = teacherRows[0].teacher_id;
+      }
+    }
+    
     res.json({
       result: {
-        obj: {
-          token,
-          user_id: user.user_id,
-          username: user.username,
-          nickname: user.nickname,
-          phone: user.phone,
-          email: user.email,
-          user_group: user.user_group,
-          avatar: user.avatar
-        }
+        obj: userInfo
       }
     });
   } catch (error) {
@@ -927,6 +1057,215 @@ app.put('/api/defense/plan/publish/:id', async (req, res) => {
     res.json({ result: rows[0] });
   } catch (error) {
     console.error('发布答辩计划错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 答辩材料相关路由
+app.get('/api/defense/material/list', async (req, res) => {
+  try {
+    const { page = 1, size = 10, student_id, material_type } = req.query;
+    const offset = (page - 1) * size;
+
+    let whereClauses = [];
+    let params = [];
+
+    if (student_id) {
+      whereClauses.push('dm.student_id = ?');
+      params.push(student_id);
+    }
+    if (material_type) {
+      whereClauses.push('dm.material_type = ?');
+      params.push(material_type);
+    }
+
+    const whereClause = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+    const [countResult] = await pool.execute(
+      `SELECT COUNT(*) as total FROM defense_materials dm ${whereClause}`,
+      params
+    );
+    const total = countResult[0].total;
+
+    const [rows] = await pool.execute(
+      `SELECT dm.*, s.student_name, s.student_no 
+       FROM defense_materials dm 
+       LEFT JOIN students s ON dm.student_id = s.student_id 
+       ${whereClause} 
+       ORDER BY dm.upload_time DESC 
+       LIMIT ? OFFSET ?`,
+      [...params, parseInt(size), offset]
+    );
+
+    res.json({ result: { list: rows, total } });
+  } catch (error) {
+    console.error('获取答辩材料列表错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.post('/api/defense/material/upload', upload.single('file'), async (req, res) => {
+  try {
+    const { student_id, material_type } = req.body;
+    const file = req.file;
+
+    console.log('上传文件请求:', { student_id, material_type, file: file ? file.originalname : 'no file' });
+
+    if (!file) {
+      return res.json({ error: { code: 400, message: '请上传文件' } });
+    }
+
+    if (!student_id) {
+      return res.json({ error: { code: 400, message: '缺少学生ID' } });
+    }
+
+    const [result] = await pool.execute(
+      'INSERT INTO defense_materials (student_id, material_type, material_name, file_path, file_size, upload_time) VALUES (?, ?, ?, ?, ?, NOW())',
+      [student_id, material_type || '答辩材料', file.originalname, file.path, file.size]
+    );
+
+    console.log('文件上传成功:', result.insertId);
+    res.json({ result: { id: result.insertId, message: '上传成功' } });
+  } catch (error) {
+    console.error('上传答辩材料错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误: ' + error.message } });
+  }
+});
+
+app.delete('/api/defense/material/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 先获取文件路径以便删除文件
+    const [rows] = await pool.execute('SELECT file_path FROM defense_materials WHERE material_id = ?', [id]);
+    
+    if (rows.length > 0 && rows[0].file_path) {
+      // 删除文件
+      try {
+        fs.unlinkSync(rows[0].file_path);
+      } catch (err) {
+        console.error('删除文件失败:', err);
+      }
+    }
+    
+    await pool.execute('DELETE FROM defense_materials WHERE material_id = ?', [id]);
+    res.json({ result: { message: '删除成功' } });
+  } catch (error) {
+    console.error('删除答辩材料错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.get('/api/defense/material/download/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [rows] = await pool.execute(
+      'SELECT material_name, file_path FROM defense_materials WHERE material_id = ?',
+      [id]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: { code: 404, message: '文件不存在' } });
+    }
+    
+    const filePath = rows[0].file_path;
+    const fileName = rows[0].material_name;
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: { code: 404, message: '文件不存在' } });
+    }
+    
+    res.download(filePath, fileName, (err) => {
+      if (err) {
+        console.error('下载文件错误:', err);
+        res.status(500).json({ error: { code: 500, message: '下载失败' } });
+      }
+    });
+  } catch (error) {
+    console.error('下载答辩材料错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 答辩场地相关路由
+app.get('/api/defense/venue/list', async (req, res) => {
+  try {
+    const { page = 1, size = 10, venue_name, status } = req.query;
+    const offset = (page - 1) * size;
+
+    let whereClauses = [];
+    let params = [];
+
+    if (venue_name) {
+      whereClauses.push('venue_name LIKE ?');
+      params.push(`%${venue_name}%`);
+    }
+    if (status) {
+      whereClauses.push('status = ?');
+      params.push(status);
+    }
+
+    const whereClause = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+    const [countResult] = await pool.execute(
+      `SELECT COUNT(*) as total FROM defense_venues ${whereClause}`,
+      params
+    );
+    const total = countResult[0].total;
+
+    const [rows] = await pool.execute(
+      `SELECT * FROM defense_venues ${whereClause} ORDER BY venue_id DESC LIMIT ? OFFSET ?`,
+      [...params, parseInt(size), offset]
+    );
+
+    res.json({ result: { list: rows, total } });
+  } catch (error) {
+    console.error('获取答辩场地列表错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.post('/api/defense/venue', async (req, res) => {
+  try {
+    const { venue_name, location, capacity, equipment, status = 1 } = req.body;
+
+    const [result] = await pool.execute(
+      'INSERT INTO defense_venues (venue_name, location, capacity, equipment, status) VALUES (?, ?, ?, ?, ?)',
+      [venue_name, location, capacity, equipment, status]
+    );
+
+    res.json({ result: { id: result.insertId, message: '添加成功' } });
+  } catch (error) {
+    console.error('添加答辩场地错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.put('/api/defense/venue/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { venue_name, location, capacity, equipment, status } = req.body;
+
+    await pool.execute(
+      'UPDATE defense_venues SET venue_name = ?, location = ?, capacity = ?, equipment = ?, status = ? WHERE venue_id = ?',
+      [venue_name, location, capacity, equipment, status, id]
+    );
+
+    res.json({ result: { message: '更新成功' } });
+  } catch (error) {
+    console.error('更新答辩场地错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.delete('/api/defense/venue/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.execute('DELETE FROM defense_venues WHERE venue_id = ?', [id]);
+    res.json({ result: { message: '删除成功' } });
+  } catch (error) {
+    console.error('删除答辩场地错误:', error);
     res.json({ error: { code: 500, message: '服务器错误' } });
   }
 });
