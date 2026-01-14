@@ -6,7 +6,7 @@ import { AxiosPromise } from 'axios'
  */
 export function uploadFile(data: FormData): AxiosPromise<any> {
   return request({
-    url: '/api/file/upload',
+    url: '/file/upload',  // 移除了/api前缀，因为request工具中已经设置了baseURL
     method: 'post',
     data: data,
     headers: {

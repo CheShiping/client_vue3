@@ -105,8 +105,13 @@ const handleLogin = async () => {
             email: userData.email || '',
             user_group: userData.user_group || '',
             user_admin: userData.user_admin || '0',
-            state: userData.state || 0
+            state: userData.state || 0,
+            create_time: userData.create_time || '',
+            update_time: userData.update_time || ''
           })
+          
+          // 确保用户信息已保存后，再去获取完整信息
+          await userStore.fetchUserInfo()
           
           ElMessage.success('登录成功')
           
@@ -149,7 +154,7 @@ const handleLogin = async () => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(22, 93, 255, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%);
+    background: linear-gradient(135deg, rgba(22, 93, 255, 0.1) 0, rgba(255, 255, 255, 0.5) 100%);
     z-index: 1;
   }
 }
@@ -301,4 +306,3 @@ const handleLogin = async () => {
   }
 }
 </style>
-

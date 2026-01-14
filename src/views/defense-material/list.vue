@@ -1,5 +1,5 @@
 <template>
-  <div class="defense-material-container">
+  <div class="defense-material-container" v-if="studentInfoLoaded">
     <el-card>
       <template #header>
         <div class="card-header">
@@ -89,13 +89,20 @@
       </template>
     </el-dialog>
   </div>
+  <div v-else class="loading-container">
+    <el-empty description="正在加载学生信息..." />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 import axios from 'axios'
+import { getStudentByUserId } from '@/api/student'
+
+const userStore = useUserStore()
 
 const searchForm = reactive({
   material_type: ''
@@ -118,6 +125,9 @@ const uploadForm = reactive({
   file: null as File | null
 })
 
+const studentInfo = ref()
+const studentInfoLoaded = ref(false) // 新增标志位表示学生信息是否已加载
+
 const uploadRules = {
   material_type: [{ required: true, message: '请选择材料类型', trigger: 'change' }],
   file: [{ required: true, message: '请选择文件', trigger: 'change' }]
@@ -137,10 +147,22 @@ const getMaterialTypeName = (type: string) => {
 
 const fetchMaterialList = async () => {
   try {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-    const studentId = userInfo.student_id
+    // 通过标志位确保数据已经加载完成
+    if (!studentInfoLoaded.value) {
+      console.error('学生信息尚未加载完成');
+      ElMessage.error('学生信息尚未加载完成，请稍后再试');
+      return;
+    }
+
+    // 现在可以安全访问studentInfo.value.result.student_id
+    const studentId = studentInfo.value.result.student_id
     
     console.log('获取材料列表，student_id:', studentId)
+    
+    if (!studentId) {
+      ElMessage.warning('当前用户不是学生，无法查看材料列表')
+      return
+    }
     
     const response = await axios.get('/api/defense/material/list', {
       params: {
@@ -182,6 +204,27 @@ const handleFileChange = (file: any) => {
   uploadForm.file = file.raw
 }
 
+const getStudent = async (userId: any) => {
+  try {
+    const data = await getStudentByUserId(userId)
+    studentInfo.value = data;
+    console.log("答辩材料中获取的根据登录用户学生信息：", data)
+    
+    // 设置学生信息已加载完成标志
+    studentInfoLoaded.value = true;
+    
+    // 在数据加载完成后获取材料列表
+    await fetchMaterialList()
+  } catch (error) {
+    console.error("获取学生信息失败:", error)
+    ElMessage.error("获取学生信息失败")
+  }
+}
+
+onMounted(() => {
+  getStudent(userStore.userInfo.user_id)
+})
+
 const handleSubmitUpload = async () => {
   if (!uploadFormRef.value) return
   
@@ -189,15 +232,17 @@ const handleSubmitUpload = async () => {
     if (valid && uploadForm.file) {
       uploading.value = true
       try {
-        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-        
-        console.log('用户信息:', userInfo)
-        
-        // 直接使用登录时返回的 student_id
-        const studentId = userInfo.student_id
+        // 确保学生信息已加载
+        if (!studentInfoLoaded.value) {
+          ElMessage.error('学生信息尚未加载完成，请稍后再试')
+          uploading.value = false
+          return
+        }
+
+        const studentId = studentInfo.value.result.student_id;
         
         if (!studentId) {
-          ElMessage.error('请先登录学生账号（使用 student001 或 student002）')
+          ElMessage.error('请先登录学生账号')
           uploading.value = false
           return
         }
@@ -276,10 +321,6 @@ const handleDelete = (row: any) => {
     }
   })
 }
-
-onMounted(() => {
-  fetchMaterialList()
-})
 </script>
 
 <style scoped>
@@ -300,5 +341,12 @@ onMounted(() => {
 .el-pagination {
   margin-top: 20px;
   justify-content: flex-end;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
 }
 </style>

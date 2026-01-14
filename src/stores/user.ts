@@ -73,19 +73,21 @@ export const useUserStore = defineStore('user', () => {
     user_admin: '0',
     state: 1,
     create_time: '',
-    update_time: ''
+    update_time: '',
   })
   
-  // 添加当前学生ID状态
-  const currentStudentId = ref<number | null>(null)
 
   // 添加获取用户信息的加载状态
   const fetchingUserInfo = ref<boolean>(false)
+  
+  // 添加最后用户信息错误时间戳，用于防抖
+  const lastUserInfoErrorTime = ref<number>(0)
 
   // 计算属性
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => userInfo.value.user_admin === '1' || userInfo.value.user_group === 'admin')
   const isTeacher = computed(() => userInfo.value.user_group === 'teacher')
+  const isStudent = computed(() => userInfo.value.user_group === 'student')
 
   // 方法
   function setTokenValue(newToken: string): void {
@@ -119,20 +121,41 @@ export const useUserStore = defineStore('user', () => {
         console.log('获取用户信息响应:', response)
         
         // 检查响应是否包含必要的用户信息字段
+        // 根据实际返回的数据结构来处理
         if (response && response.result && response.result.obj) {
           // 使用响应中的obj字段作为用户信息
           setUserInfo(response.result.obj)
+        } else if (response && response.obj) {
+          // 兼容另一种可能的响应格式
+          setUserInfo(response.obj)
+        } else if (response && response.user_id) {
+          // 兼容直接返回用户信息对象的格式
+          setUserInfo(response)
         } else {
           console.warn('获取的用户信息格式不正确:', response)
+          
+          // 检查是否为错误响应，如果是401错误则退出登录
+          if (response && (response.error?.code === 401 || response.message?.includes('401'))) {
+            logout()
+            return
+          }
+          
           // 使用默认用户信息，避免系统崩溃
-          setUserInfo({...userInfo.value})
+          setUserInfo({ ...userInfo.value })
         }
       }
     } catch (error) {
       console.error('获取用户信息失败:', error)
+          
+      // 添加防抖机制，防止频繁错误提示
+      const now = Date.now()
+      if (now - lastUserInfoErrorTime.value > 5000) { // 5秒内只提示一次
+        lastUserInfoErrorTime.value = now
+        console.error('获取用户信息失败:', error)
+      }
+          
       // 如果获取用户信息失败，可能token已失效，清除本地token
       logout()
-      throw error // 抛出错误，使调用方可以捕获
     } finally {
       // 请求完成，重置状态
       fetchingUserInfo.value = false
@@ -152,7 +175,7 @@ export const useUserStore = defineStore('user', () => {
       user_admin: '',
       state: 0,
       create_time: '',
-      update_time: ''
+      update_time: '',
     }
     removeToken()
     clearUserInfoStorage()
@@ -161,10 +184,10 @@ export const useUserStore = defineStore('user', () => {
   return {
     token,
     userInfo,
-    currentStudentId,
     isLoggedIn,
     isAdmin,
     isTeacher,
+    isStudent,
     setTokenValue,
     setUserInfo,
     fetchUserInfo, // 添加此方法到返回对象

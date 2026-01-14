@@ -471,7 +471,7 @@ app.post('/api/user/login', async (req, res) => {
     }
     
     // 生成token（实际项目中应该使用JWT）
-    const token = 'mock_token_' + Date.now();
+    const token = 'mock_token_' + user.user_id + '_' + Date.now(); // 包含用户ID到token中
     
     const userInfo = {
       token,
@@ -481,7 +481,9 @@ app.post('/api/user/login', async (req, res) => {
       phone: user.phone,
       email: user.email,
       user_group: user.user_group,
-      avatar: user.avatar
+      user_admin: user.user_admin,
+      avatar: user.avatar,
+      state: user.state
     };
     
     // 如果是学生，获取 student_id
@@ -526,26 +528,65 @@ app.get('/api/user/info', async (req, res) => {
       return res.json({ error: { code: 401, message: '未授权' } });
     }
     
-    // 实际项目中应该验证token
-    // 这里简单模拟，返回第一个用户信息
-    const [rows] = await pool.query('SELECT * FROM users LIMIT 1');
+    // 从token中解析用户ID
+    // token格式: mock_token_{userId}_{timestamp}
+    const tokenParts = token.split('_');
+    if (tokenParts.length < 3 || tokenParts[0] !== 'mock' || tokenParts[1] !== 'token') {
+      return res.json({ error: { code: 401, message: '无效的token' } });
+    }
+    
+    const userId = parseInt(tokenParts[2]);
+    if (isNaN(userId)) {
+      return res.json({ error: { code: 401, message: '无效的token' } });
+    }
+    
+    // 根据用户ID查询用户信息
+    const [rows] = await pool.query('SELECT * FROM users WHERE user_id = ?', [userId]);
     
     if (rows.length === 0) {
       return res.json({ error: { code: 404, message: '用户不存在' } });
     }
     
     const user = rows[0];
+    
+    // 准备返回的用户信息
+    const userInfo = {
+      user_id: user.user_id,
+      username: user.username,
+      nickname: user.nickname,
+      phone: user.phone,
+      email: user.email,
+      user_group: user.user_group,
+      user_admin: user.user_admin,
+      avatar: user.avatar,
+      state: user.state
+    };
+    
+    // 如果是学生，获取 student_id
+    if (user.user_group === 'student') {
+      const [studentRows] = await pool.query(
+        'SELECT student_id FROM students WHERE user_id = ?',
+        [user.user_id]
+      );
+      if (studentRows.length > 0) {
+        userInfo.student_id = studentRows[0].student_id;
+      }
+    }
+    
+    // 如果是教师，获取 teacher_id
+    if (user.user_group === 'teacher') {
+      const [teacherRows] = await pool.query(
+        'SELECT teacher_id FROM teachers WHERE user_id = ?',
+        [user.user_id]
+      );
+      if (teacherRows.length > 0) {
+        userInfo.teacher_id = teacherRows[0].teacher_id;
+      }
+    }
+    
     res.json({
       result: {
-        obj: {
-          user_id: user.user_id,
-          username: user.username,
-          nickname: user.nickname,
-          phone: user.phone,
-          email: user.email,
-          user_group: user.user_group,
-          avatar: user.avatar
-        }
+        obj: userInfo
       }
     });
   } catch (error) {
@@ -1065,7 +1106,9 @@ app.put('/api/defense/plan/publish/:id', async (req, res) => {
 app.get('/api/defense/material/list', async (req, res) => {
   try {
     const { page = 1, size = 10, student_id, material_type } = req.query;
-    const offset = (page - 1) * size;
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const sizeNum = Math.max(1, parseInt(size) || 10);
+    const offset = (pageNum - 1) * sizeNum;
 
     let whereClauses = [];
     let params = [];
@@ -1081,20 +1124,23 @@ app.get('/api/defense/material/list', async (req, res) => {
 
     const whereClause = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
 
+    // 查询总数
     const [countResult] = await pool.execute(
       `SELECT COUNT(*) as total FROM defense_materials dm ${whereClause}`,
       params
     );
     const total = countResult[0].total;
 
-    const [rows] = await pool.execute(
+    const queryParams = params;
+    
+    const [rows] = await pool.query(
       `SELECT dm.*, s.student_name, s.student_no 
        FROM defense_materials dm 
        LEFT JOIN students s ON dm.student_id = s.student_id 
        ${whereClause} 
        ORDER BY dm.upload_time DESC 
-       LIMIT ? OFFSET ?`,
-      [...params, parseInt(size), offset]
+       LIMIT ${sizeNum} OFFSET ${offset}`,
+      queryParams
     );
 
     res.json({ result: { list: rows, total } });
@@ -1561,10 +1607,11 @@ app.get('/api/notice/list', async (req, res) => {
     
     const query = 'SELECT * FROM notices ORDER BY release_time DESC LIMIT ? OFFSET ?';
     const countQuery = 'SELECT COUNT(*) as total FROM notices';
-    
-    const [rows] = await pool.query(query, [parseInt(size), offset]);
+
+    const queryParams = [parseInt(size), offset];
+    const [rows] = await pool.query(query, queryParams);
     const [countResult] = await pool.query(countQuery);
-    
+
     res.json({
       result: {
         list: rows,
@@ -1579,19 +1626,202 @@ app.get('/api/notice/list', async (req, res) => {
   }
 });
 
-// 获取单个公告详情API
 app.get('/api/notice/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.execute('SELECT * FROM notices WHERE notice_id = ?', [id]);
-    
     if (rows.length === 0) {
-      return res.json({ error: { code: 404, message: '公告不存在' } });
+      return res.json({ error: { code: 404, message: '通知不存在' } });
     }
-    
     res.json({ result: rows[0] });
   } catch (error) {
-    console.error('获取公告详情错误:', error);
+    console.error('获取通知详情错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.post('/api/notice', async (req, res) => {
+  try {
+    const { title, content, release_time } = req.body;
+    if (!title || !content || !release_time) {
+      return res.json({ error: { code: 400, message: '缺少必填字段' } });
+    }
+    const [result] = await pool.execute(
+      'INSERT INTO notices (title, content, release_time) VALUES (?, ?, ?)',
+      [title, content, formatDateTime(release_time)]
+    );
+    res.json({
+      result: {
+        notice_id: result.insertId,
+        title,
+        content,
+        release_time
+      }
+    });
+  } catch (error) {
+    console.error('新增通知错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.put('/api/notice/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, release_time } = req.body;
+    if (!title || !content || !release_time) {
+      return res.json({ error: { code: 400, message: '缺少必填字段' } });
+    }
+    await pool.execute(
+      'UPDATE notices SET title = ?, content = ?, release_time = ? WHERE notice_id = ?',
+      [title, content, formatDateTime(release_time), id]
+    );
+    const [rows] = await pool.execute('SELECT * FROM notices WHERE notice_id = ?', [id]);
+    res.json({ result: rows[0] });
+  } catch (error) {
+    console.error('更新通知错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.delete('/api/notice/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.execute('DELETE FROM notices WHERE notice_id = ?', [id]);
+    res.json({ result: { message: '删除成功' } });
+  } catch (error) {
+    console.error('删除通知错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 统计相关路由
+app.get('/api/statistics/defense-completion', async (req, res) => {
+  try {
+    const { major, class_name, grade } = req.query;
+
+    // 构建基础查询
+    let baseQuery = `
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN gs.status = 2 THEN 1 ELSE 0 END) as completed,
+        SUM(CASE WHEN gs.status != 2 THEN 1 ELSE 0 END) as pending
+      FROM students s
+      LEFT JOIN group_students gs ON s.student_id = gs.student_id
+    `;
+    
+    let whereConditions = ['s.student_id IS NOT NULL']; // 确保我们只统计有效的学生
+    let params = [];
+
+    // 添加筛选条件
+    if (major) {
+      whereConditions.push('s.major_name LIKE ?');
+      params.push(`%${major}%`);
+    }
+    if (class_name) {
+      whereConditions.push('s.class_name LIKE ?');
+      params.push(`%${class_name}%`);
+    }
+    if (grade) {
+      whereConditions.push('s.grade LIKE ?');
+      params.push(`%${grade}%`);
+    }
+
+    const whereClause = 'WHERE ' + whereConditions.join(' AND ');
+    baseQuery = baseQuery + ' ' + whereClause;
+
+    const [rows] = await pool.execute(baseQuery, params);
+
+    // 计算完成率
+    const total = rows[0].total || 0;
+    const completed = rows[0].completed || 0;
+    const pending = rows[0].pending || 0;
+    const completionRate = total > 0 ? parseFloat(((completed / total) * 100).toFixed(2)) : 0;
+
+    res.json({
+      result: {
+        total,
+        completed,
+        pending,
+        completion_rate: completionRate
+      }
+    });
+  } catch (error) {
+    console.error('获取答辩完成情况统计错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+app.get('/api/statistics/score-distribution', async (req, res) => {
+  try {
+    const { major, class_name, grade } = req.query;
+
+    // 构建基础查询，计算每个学生的平均分
+    let baseQuery = `
+      SELECT 
+        s.student_id,
+        AVG(ds.score) as avg_score
+      FROM students s
+      LEFT JOIN group_students gs ON s.student_id = gs.student_id
+      LEFT JOIN defense_scores ds ON gs.gs_id = ds.gs_id
+    `;
+    
+    let whereConditions = ['s.student_id IS NOT NULL']; // 确保我们只统计有效的学生
+    let params = [];
+
+    // 添加筛选条件
+    if (major) {
+      whereConditions.push('s.major_name LIKE ?');
+      params.push(`%${major}%`);
+    }
+    if (class_name) {
+      whereConditions.push('s.class_name LIKE ?');
+      params.push(`%${class_name}%`);
+    }
+    if (grade) {
+      whereConditions.push('s.grade LIKE ?');
+      params.push(`%${grade}%`);
+    }
+
+    const whereClause = 'WHERE ' + whereConditions.join(' AND ');
+    baseQuery = baseQuery + ' ' + whereClause + ' GROUP BY s.student_id';
+
+    const [rows] = await pool.execute(baseQuery, params);
+
+    // 统计各分数段的人数
+    let excellent = 0; // 90-100
+    let good = 0;      // 80-89
+    let medium = 0;    // 70-79
+    let pass = 0;      // 60-69
+    let fail = 0;      // 0-59
+
+    rows.forEach(row => {
+      if (row.avg_score !== null) {
+        const score = parseFloat(row.avg_score);
+        if (score >= 90 && score <= 100) {
+          excellent++;
+        } else if (score >= 80 && score < 90) {
+          good++;
+        } else if (score >= 70 && score < 80) {
+          medium++;
+        } else if (score >= 60 && score < 70) {
+          pass++;
+        } else if (score >= 0 && score < 60) {
+          fail++;
+        }
+      }
+    });
+
+    res.json({
+      result: {
+        excellent,
+        good,
+        medium,
+        pass,
+        fail
+      }
+    });
+  } catch (error) {
+    console.error('获取成绩分布统计错误:', error);
     res.json({ error: { code: 500, message: '服务器错误' } });
   }
 });
@@ -1664,30 +1894,68 @@ app.get('/api/defense/list', async (req, res) => {
   }
 });
 
+      }
+    });
+  } catch (error) {
+    console.error('获取答辩记录列表错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 兼容旧的答辩列表API（现在应该使用答辩计划或答辩分组）
+app.get('/api/defense/list', async (req, res) => {
+  try {
+    // 直接重定向到答辩计划列表
+    return res.redirect('/api/defense/plan/list?' + new URLSearchParams(req.query));
+  } catch (error) {
+    console.error('获取答辩列表错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
 // 论文列表API
 app.get('/api/paper/list', async (req, res) => {
   try {
-    const { page = 1, size = 10, student_name, thesis_title } = req.query;
+    const { page = 1, size = 10, student_name, thesis_title, upload_students } = req.query; // 添加upload_students参数
     const offset = (page - 1) * size;
     
-    let query = 'SELECT * FROM papers';
-    let countQuery = 'SELECT COUNT(*) as total FROM papers';
+    let query = 'SELECT p.*, s.student_name, s.student_no FROM papers p LEFT JOIN students s ON p.upload_students = s.student_id';
+    let countQuery = 'SELECT COUNT(*) as total FROM papers p LEFT JOIN students s ON p.upload_students = s.student_id';
     const params = [];
     const countParams = [];
     
     // 构建查询条件
+    let whereAdded = false;
     if (thesis_title) {
-      query += ' WHERE thesis_title LIKE ?';
-      countQuery += ' WHERE thesis_title LIKE ?';
+      query += ' WHERE p.thesis_title LIKE ?';
+      countQuery += ' WHERE p.thesis_title LIKE ?';
       params.push(`%${thesis_title}%`);
       countParams.push(`%${thesis_title}%`);
+      whereAdded = true;
     }
     
-    query += ' ORDER BY create_time DESC LIMIT ? OFFSET ?';
+    if (upload_students) {
+      const clause = whereAdded ? ' AND p.upload_students = ?' : ' WHERE p.upload_students = ?';
+      query += clause;
+      countQuery += clause;
+      params.push(upload_students);
+      countParams.push(upload_students);
+      whereAdded = true;
+    }
+    
+    if (student_name) {
+      const clause = whereAdded ? ' AND s.student_name LIKE ?' : ' WHERE s.student_name LIKE ?';
+      query += clause;
+      countQuery += clause;
+      params.push(`%${student_name}%`);
+      countParams.push(`%${student_name}%`);
+    }
+    
+    query += ' ORDER BY p.create_time DESC LIMIT ? OFFSET ?';
     params.push(parseInt(size), offset);
     
-    const [rows] = await pool.query(query, params);
-    const [countResult] = await pool.query(countQuery, countParams);
+    const [rows] = await pool.execute(query, params); // 使用execute而不是query
+    const [countResult] = await pool.execute(countQuery, countParams); // 使用execute而不是query
     
     res.json({
       result: {
@@ -1699,6 +1967,134 @@ app.get('/api/paper/list', async (req, res) => {
     });
   } catch (error) {
     console.error('获取论文列表错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 获取论文详情API
+app.get('/api/paper/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [rows] = await pool.execute(
+      'SELECT p.*, s.student_name, s.student_no FROM papers p LEFT JOIN students s ON p.upload_students = s.student_id WHERE p.paper_information_id = ?',
+      [id]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: { code: 404, message: '论文不存在' } });
+    }
+    
+    res.json({ result: rows[0] });
+  } catch (error) {
+    console.error('获取论文详情错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 新增论文API
+app.post('/api/paper', async (req, res) => {
+  try {
+    const { 
+      thesis_title, 
+      instructor, 
+      paper_type, 
+      upload_students, 
+      paper_attachment, 
+      thesis_evaluation, 
+      teachers_opinion, 
+      paper_comments,
+      defense_material_name,
+      material_type,
+      file_size,
+      file_path,
+      material_description,
+      defense_id,
+      student_id
+    } = req.body;
+    
+    // 执行插入操作
+    const [result] = await pool.execute(
+      'INSERT INTO papers (thesis_title, instructor, paper_type, upload_students, paper_attachment, thesis_evaluation, teachers_opinion, paper_comments, create_time, update_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+      [
+        thesis_title, 
+        instructor, 
+        paper_type, 
+        upload_students, 
+        paper_attachment, 
+        thesis_evaluation, 
+        teachers_opinion, 
+        paper_comments
+      ]
+    );
+    
+    // 返回新增的记录
+    const [newRow] = await pool.execute(
+      'SELECT p.*, s.student_name, s.student_no FROM papers p LEFT JOIN students s ON p.upload_students = s.student_id WHERE p.paper_information_id = ?',
+      [result.insertId]
+    );
+    
+    res.json({ result: newRow[0] });
+  } catch (error) {
+    console.error('新增论文错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 更新论文API
+app.put('/api/paper/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { 
+      thesis_title, 
+      instructor, 
+      paper_type, 
+      upload_students, 
+      paper_attachment, 
+      thesis_evaluation, 
+      teachers_opinion, 
+      paper_comments 
+    } = req.body;
+    
+    // 更新记录
+    await pool.execute(
+      'UPDATE papers SET thesis_title = ?, instructor = ?, paper_type = ?, upload_students = ?, paper_attachment = ?, thesis_evaluation = ?, teachers_opinion = ?, paper_comments = ?, update_time = NOW() WHERE paper_information_id = ?',
+      [
+        thesis_title, 
+        instructor, 
+        paper_type, 
+        upload_students, 
+        paper_attachment, 
+        thesis_evaluation, 
+        teachers_opinion, 
+        paper_comments,
+        id
+      ]
+    );
+    
+    // 返回更新后的记录
+    const [updatedRow] = await pool.execute(
+      'SELECT p.*, s.student_name, s.student_no FROM papers p LEFT JOIN students s ON p.upload_students = s.student_id WHERE p.paper_information_id = ?',
+      [id]
+    );
+    
+    res.json({ result: updatedRow[0] });
+  } catch (error) {
+    console.error('更新论文错误:', error);
+    res.json({ error: { code: 500, message: '服务器错误' } });
+  }
+});
+
+// 删除论文API
+app.delete('/api/paper/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await pool.execute('DELETE FROM papers WHERE paper_information_id = ?', [id]);
+    
+    res.json({ result: { message: '删除成功' } });
+  } catch (error) {
+    console.error('删除论文错误:', error);
     res.json({ error: { code: 500, message: '服务器错误' } });
   }
 });

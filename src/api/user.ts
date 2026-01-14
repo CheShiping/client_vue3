@@ -103,4 +103,3 @@ export function updateUserInfo(data: Partial<{ nickname: string; phone: string; 
     data
   })
 }
-
