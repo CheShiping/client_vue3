@@ -80,6 +80,8 @@ const loadData = async () => {
     const res = await getStudentList(params)
     if (res.result) {
       pageTableRef.value.tableData = res.result.list || []
+      console.log('查询参数:', params);
+      console.log('查询结果:', pageTableRef.value.tableData);
       pageTableRef.value.pagination.total = res.result.total || 0
     }
   } catch (error) {
@@ -151,7 +153,7 @@ const handleDelete = async (row) => {
       type: 'warning'
     })
     
-    await deleteStudent(row.student_users_id)
+    await deleteStudent(row.student_id)
     ElMessage.success('删除成功')
     loadData()
   } catch (error) {

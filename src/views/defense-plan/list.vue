@@ -207,7 +207,7 @@ const getStatusType = (status) => {
     case 2: return 'info'
     case 3: return 'success'
     case 4: return 'danger'
-    default: return ''
+    default: return 'info'
   }
 }
 

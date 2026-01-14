@@ -15,15 +15,15 @@
     </template>
     <template #search="{ form }">
       <el-form-item label="姓名">
-        <el-input v-model="form.teachers_name" placeholder="请输入姓名" clearable />
+        <el-input v-model="form.teacher_name" placeholder="请输入姓名" clearable />
       </el-form-item>
       <el-form-item label="工号">
         <el-input v-model="form.teacher_no" placeholder="请输入工号" clearable />
       </el-form-item>
     </template>
 
-    <el-table-column prop="employee_no" label="工号" width="120" />
-    <el-table-column prop="teachers_name" label="姓名" width="120" />
+    <el-table-column prop="teacher_no" label="工号" width="120" />
+    <el-table-column prop="teacher_name" label="姓名" width="120" />
     <el-table-column prop="teacher_gender" label="性别" width="80" />
     <el-table-column prop="teacher_age" label="年龄" width="80" />
     <el-table-column prop="professional_title" label="职称" width="120" />
@@ -61,8 +61,8 @@ const showDetail = ref(false)
 const formData = ref(null)
 const detailData = ref(null)
 const searchParams = ref({
-  teachers_name: '',
-  employee_no: '' // 修改为正确的字段名
+  teacher_name: '',
+  teacher_no: ''
 })
 
 // 加载数据
@@ -99,8 +99,8 @@ const handleSearch = (form) => {
 
 const handleReset = () => {
   searchParams.value = {
-    teachers_name: '',
-    employee_no: '' // 修改为正确的字段名
+    teacher_name: '',
+    teacher_no: ''
   }
   if (pageTableRef.value) {
     pageTableRef.value.searchForm = {}
@@ -151,7 +151,7 @@ const handleDelete = async (row) => {
       type: 'warning'
     })
     
-    await deleteTeacher(row.teacher_users_id)
+    await deleteTeacher(row.teacher_id)
     ElMessage.success('删除成功')
     loadData()
   } catch (error) {

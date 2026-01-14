@@ -38,7 +38,11 @@
     </template>
 
     <el-table-column prop="group_name" label="小组名称" min-width="200" />
-    <el-table-column prop="plan_name" label="答辩计划" min-width="200" />
+    <el-table-column label="答辩计划" min-width="200">
+      <template #default="scope">
+        {{ scope.row.plan_name || scope.row.plan?.plan_name || getPlanName(scope.row.plan_id) }}
+      </template>
+    </el-table-column>
     <el-table-column prop="venue_name" label="答辩地点" min-width="200" />
     <el-table-column prop="defense_time" label="答辩时间" />
     <el-table-column prop="group_leader_name" label="组长" />
@@ -86,6 +90,10 @@ const searchParams = reactive({
 })
 // 答辩计划列表
 const defensePlans = ref([])
+const getPlanName = (planId) => {
+  const plan = defensePlans.value.find(p => p.plan_id === planId)
+  return plan ? plan.plan_name : ''
+}
 
 // 加载答辩计划列表
 const loadDefensePlans = async () => {
@@ -93,6 +101,7 @@ const loadDefensePlans = async () => {
     const res = await getDefensePlanList({ size: 100 })
     if (res.result) {
       defensePlans.value = res.result.list || []
+      console.log('答辩计划列表:', defensePlans.value)
     }
   } catch (error) {
     console.error('加载答辩计划列表失败:', error)

@@ -58,8 +58,8 @@ const loadData = async () => {
 const getCurrentStudentId = async () => {
   try {
     const response = await getStudentByUserId(userStore.userInfo.user_id);
-    if (response && response.result && response.result.student_users_id) {
-      return response.result.student_users_id;
+    if (response && response.result && response.result.student_id) {
+      return response.result.student_id;
     }
     return null;
   } catch (error) {

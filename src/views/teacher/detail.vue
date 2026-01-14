@@ -18,7 +18,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="姓名">
-            <el-input v-model="teacherData.teachers_name" />
+            <el-input v-model="teacherData.teacher_name" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -26,18 +26,22 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="性别">
-            <el-input v-model="teacherData.gender_of_teachers" />
+            <el-input v-model="teacherData.teacher_gender" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="年龄">
-            <el-input v-model="teacherData.age_of_teachers" />
+            <el-input v-model="teacherData.teacher_age" />
           </el-form-item>
         </el-col>
       </el-row>
       
       <el-form-item label="院系">
-        <el-input v-model="teacherData.department" />
+        <el-input v-model="teacherData.department_name" />
+      </el-form-item>
+
+      <el-form-item label="职称">
+        <el-input v-model="teacherData.professional_title" />
       </el-form-item>
       
       <el-form-item label="手机号">

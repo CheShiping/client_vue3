@@ -53,7 +53,7 @@
         <el-input
           v-model="form.plan_desc"
           type="textarea"
-          rows="4"
+          :rows="4"
           placeholder="请输入计划描述"
           :disabled="readonly"
         />
@@ -205,7 +205,7 @@ const getStatusType = (status) => {
     case 2: return 'info'
     case 3: return 'success'
     case 4: return 'danger'
-    default: return ''
+    default: return 'info'
   }
 }
 

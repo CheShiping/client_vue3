@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="visible"
-    :title="formData.student_users_id ? '编辑学生' : '新增学生'"
+    :title="formData.student_id ? '编辑学生' : '新增学生'"
     width="600px"
     @close="handleClose"
   >
@@ -24,13 +24,19 @@
         </el-select>
       </el-form-item>
       <el-form-item label="年龄" prop="student_age">
-        <el-input v-model="formData.student_age" placeholder="请输入年龄" />
+        <el-input-number v-model="formData.student_age" :min="0" :max="100" placeholder="请输入年龄" />
       </el-form-item>
-      <el-form-item label="手机号" prop="phone">
-        <el-input v-model="formData.phone" placeholder="请输入手机号" />
+      <el-form-item label="班级" prop="class_name">
+        <el-input v-model="formData.class_name" placeholder="请输入班级" />
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="formData.email" placeholder="请输入邮箱" />
+      <el-form-item label="专业" prop="major_name">
+        <el-input v-model="formData.major_name" placeholder="请输入专业" />
+      </el-form-item>
+      <el-form-item label="年级" prop="grade">
+        <el-input v-model="formData.grade" placeholder="请输入年级" />
+      </el-form-item>
+      <el-form-item label="用户ID" prop="user_id">
+        <el-input-number v-model="formData.user_id" :min="1" placeholder="请输入用户ID" />
       </el-form-item>
     </el-form>
     
@@ -58,13 +64,16 @@ const formRef = ref(null)
 const loading = ref(false)
 
 const formData = reactive({
-  student_users_id: 0,
+  student_id: 0,
   student_no: '',
   student_name: '',
   student_gender: '',
   student_age: '',
-  phone: '',
-  email: ''
+  class_name: '',
+  major_name: '',
+  grade: '',
+  user_id: 0,
+  state: 1
 })
 
 const rules = {
@@ -79,6 +88,9 @@ const rules = {
   ],
   student_age: [
     { required: true, message: '请输入年龄', trigger: 'blur' }
+  ],
+  user_id: [
+    { required: true, message: '请输入用户ID', trigger: 'blur' }
   ]
 }
 
@@ -116,8 +128,8 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        if (formData.student_users_id) {
-          await updateStudent(formData.student_users_id, formData)
+        if (formData.student_id) {
+          await updateStudent(formData.student_id, formData)
           ElMessage.success('更新成功')
         } else {
           await addStudent(formData)
@@ -127,6 +139,7 @@ const handleSubmit = async () => {
         handleClose()
       } catch (error) {
         console.error('操作失败:', error)
+        ElMessage.error('操作失败: ' + (error.response?.data?.error?.message || '服务器错误'))
       } finally {
         loading.value = false
       }
