@@ -9,7 +9,7 @@ export default defineConfig({
     vue(),
     viteMockServe({
       mockPath: 'mock',
-      enable: true,
+      enable: false,
       supportTs: true
     })
   ],
@@ -21,12 +21,12 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    // 注释掉后端代理，使用 mock 数据
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://127.0.0.1:5000',
-    //     changeOrigin: true,
-    //   }
-    // }
+    // 启用后端代理
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+      }
+    }
   }
 })

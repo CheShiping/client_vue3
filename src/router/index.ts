@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false
     }
   },
+
   {
     path: '/',
     component: () => import('@/layout/index.vue'),
@@ -28,16 +29,7 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: true
     },
     children: [
-      {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/dashboard/index.vue'),
-        meta: {
-          title: '首页',
-          icon: 'HomeFilled',
-          requiresAuth: true
-        }
-      },
+      {        path: 'dashboard',        name: 'Dashboard',        component: () => import('@/views/dashboard/index.vue'),        meta: {          title: '首页',          icon: 'HomeFilled',          requiresAuth: true        }      },
       {
         path: 'user/info',
         name: 'UserInfo',
@@ -67,17 +59,7 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true
         }
       },
-      // 学生个人答辩管理
-      {
-        path: 'student/paper',
-        name: 'StudentDefense',
-        component: () => import('@/views/student/paper.vue'),
-        meta: {
-          title: '我的答辩',
-          icon: 'Document',
-          requiresAuth: true,
-        }
-      },
+
       // 学生成绩查看
       {
         path: 'student/score',
@@ -100,39 +82,9 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true
         }
       },
-      // 论文信息管理
-      {
-        path: 'paper/list',
-        name: 'PaperList',
-        component: () => import('@/views/paper/list.vue'),
-        meta: {
-          title: '答辩材料',
-          icon: 'Document',
-          requiresAuth: true
-        }
-      },
-      // 选题信息管理
-      {
-        path: 'topic/list',
-        name: 'TopicList',
-        component: () => import('@/views/topic/list.vue'),
-        meta: {
-          title: '选题管理',
-          icon: 'List',
-          requiresAuth: true
-        }
-      },
-      // 答辩信息管理
-      {
-        path: 'defense/list',
-        name: 'DefenseList',
-        component: () => import('@/views/defense/list.vue'),
-        meta: {
-          title: '答辩管理',
-          icon: 'ChatLineRound',
-          requiresAuth: true
-        }
-      },
+
+
+
       // 成绩信息管理
       {
         path: 'score/list',
@@ -141,6 +93,70 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '成绩管理',
           icon: 'Trophy',
+          requiresAuth: true
+        }
+      },
+      // 答辩计划管理
+      {
+        path: 'defense-plan/list',
+        name: 'DefensePlanList',
+        component: () => import('@/views/defense-plan/list.vue'),
+        meta: {
+          title: '答辩计划',
+          icon: 'Calendar',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'defense-plan/form',
+        name: 'DefensePlanForm',
+        component: () => import('@/views/defense-plan/form.vue'),
+        meta: {
+          title: '答辩计划表单',
+          requiresAuth: true,
+          showInMenu: false
+        }
+      },
+      // 答辩分组管理
+      {
+        path: 'defense-group/list',
+        name: 'DefenseGroupList',
+        component: () => import('@/views/defense-group/list.vue'),
+        meta: {
+          title: '答辩分组',
+          icon: 'UserFilled',
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'defense-group/form',
+        name: 'DefenseGroupForm',
+        component: () => import('@/views/defense-group/form.vue'),
+        meta: {
+          title: '答辩分组表单',
+          requiresAuth: true,
+          showInMenu: false
+        }
+      },
+      // 答辩评分管理
+      {
+        path: 'defense-score/list',
+        name: 'DefenseScoreList',
+        component: () => import('@/views/defense-score/list.vue'),
+        meta: {
+          title: '答辩评分',
+          icon: 'Trophy',
+          requiresAuth: true
+        }
+      },
+      // 答辩记录管理
+      {
+        path: 'defense-record/list',
+        name: 'DefenseRecordList',
+        component: () => import('@/views/defense-record/list.vue'),
+        meta: {
+          title: '答辩记录',
+          icon: 'Document',
           requiresAuth: true
         }
       },
@@ -211,25 +227,40 @@ router.beforeEach(async (to, from, next) => {
   // 如果用户信息为空，尝试获取用户信息
   if (!userStore.userInfo.username && userStore.token) {
     console.log('Fetching user info...')
-    await userStore.fetchUserInfo()
+    try {
+      await userStore.fetchUserInfo()
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      // 获取用户信息失败，可能token已失效，清除本地token并跳转到登录页
+      userStore.logout()
+      ElMessage.error('登录信息已失效，请重新登录')
+      next('/login')
+      return
+    }
+  }
+  
+  // 如果仍然没有用户名（即获取用户信息失败），跳转到登录页
+  if (!userStore.token || (!userStore.userInfo.username && !whiteList.includes(to.path))) {
+    next('/login')
+    return
   }
   
   // 权限验证
   if (userStore.isAdmin) {
     // 管理员可以访问所有页面
     next()
-  } else if (userStore.userInfo.user_group === 'teacher') {
+  } else if (userStore.isTeacher) {
     // 教师可以访问的页面
     const teacherAllowedPaths = [
       '/dashboard',
-      '/topic/list',
-      '/topic/form',
-      '/paper/list',
-      '/paper/form',
-      '/defense/list',
-      '/defense/form',
       '/score/list',
       '/score/form',
+      '/defense-plan/list',
+      '/defense-plan/form',
+      '/defense-group/list',
+      '/defense-group/form',
+      '/defense-score/list',
+      '/defense-record/list',
       '/teacher/list',
       '/teacher/form',
       '/teacher/detail',
@@ -267,18 +298,18 @@ router.beforeEach(async (to, from, next) => {
     // 学生可以访问的页面
     const studentAllowedPaths = [
       '/dashboard',
-      '/topic/list',
-      '/student/topic',
-      '/paper/list',
       '/student/score',
-      '/student/list',
-      '/student/form',
-      '/student/paper',
       '/student/detail',
+      '/defense-plan/list',
+      '/defense-group/list',
+      '/defense-score/list',
+      '/defense-record/list',
       '/notice/list',
       '/notice/view',
       '/notice/center',
-      '/chat'
+      '/chat',
+      '/user/info',
+      '/user/password'
     ]
     
     // 检查完整路径是否在允许列表中
@@ -302,6 +333,11 @@ router.beforeEach(async (to, from, next) => {
         next('/dashboard')
       }
     }
+  } else {
+    // 如果用户信息尚未加载完成或用户组未知，暂时放行，让页面自己处理
+    // 或者跳转到登录页重新登录
+    next('/login')
+    return
   }
 })
 

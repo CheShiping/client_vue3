@@ -17,18 +17,14 @@ export function initializeAllData(): void {
     const storedStudents = getDataFromStorage(storageKeys.STUDENTS)
     const storedTeachers = getDataFromStorage(storageKeys.TEACHERS)
     const storedDefenses = getDataFromStorage(storageKeys.DEFENSES)
-    const storedPapers = getDataFromStorage(storageKeys.PAPERS)
     const storedScores = getDataFromStorage(storageKeys.SCORES)
-    const storedTopics = getDataFromStorage(storageKeys.TOPICS)
     
     // 输出日志
     console.log('数据初始化完成:', {
       students: storedStudents.length,
       teachers: storedTeachers.length,
       defenses: storedDefenses.length,
-      papers: storedPapers.length,
-      scores: storedScores.length,
-      topics: storedTopics.length
+      scores: storedScores.length
     })
   } catch (error) {
     console.error('数据初始化失败:', error)

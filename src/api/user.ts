@@ -19,6 +19,16 @@ interface ForgotPasswordParams {
   email: string
 }
 
+// 注册请求参数
+interface RegisterParams {
+  username: string
+  password: string
+  nickname: string
+  phone: string
+  email: string
+  user_group: string
+}
+
 /**
  * 用户登录
  */
@@ -67,6 +77,17 @@ export function changePassword(data: ChangePasswordParams): AxiosPromise<any> {
 export function forgotPassword(data: ForgotPasswordParams): AxiosPromise<any> {
   return request({
     url: '/user/forgot',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 用户注册
+ */
+export function register(data: RegisterParams): AxiosPromise<any> {
+  return request({
+    url: '/user/register',
     method: 'post',
     data
   })

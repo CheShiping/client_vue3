@@ -35,8 +35,6 @@ interface PaperInfo {
   student_id?: number
   // 文件ID，用于下载
   file_id?: number
-  // 文件名称
-  defense_material_name?: string
 }
 
 /**

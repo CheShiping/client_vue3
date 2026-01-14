@@ -24,9 +24,20 @@ app.use(router)
 
 // 应用启动时验证 token 并获取用户信息
 if (getToken()) {
-  // 等待pinia初始化完成后再获取用户信息
-  const userStore = useUserStore()
-  userStore.fetchUserInfo()
+  // 使用setTimeout确保pinia初始化完成后再获取用户信息
+  setTimeout(async () => {
+    const userStore = useUserStore()
+    try {
+      await userStore.fetchUserInfo()
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+    }
+  }, 0)
+} else {
+  // 如果没有token且当前不在登录页，则重定向到登录页
+  if (router.currentRoute.value.path !== '/login') {
+    router.push('/login')
+  }
 }
 
 

@@ -1,11 +1,16 @@
 <template>
   <div class="dashboard">
-    <el-row :gutter="20">
+    <div class="page-header">
+      <h1>欢迎回来</h1>
+      <p>这里是您的答辩管理系统仪表盘</p>
+    </div>
+    
+    <el-row :gutter="24" style="margin-top: 24px">
       <el-col :span="6" v-for="stat in statistics" :key="stat.title">
-        <el-card class="stat-card">
+        <el-card class="stat-card" shadow="hover">
           <div class="stat-content">
             <div class="stat-icon" :style="{ backgroundColor: stat.color }">
-              <el-icon :size="30">
+              <el-icon :size="36">
                 <component :is="stat.icon" />
               </el-icon>
             </div>
@@ -18,58 +23,91 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px">
-      <el-col :span="12">
-        <el-card>
+    <el-row :gutter="24" style="margin-top: 24px">
+      <el-col :span="16">
+        <el-card shadow="hover">
           <template #header>
             <div class="card-header">
-              <span>最近通知</span>
+              <span class="header-title">最近通知</span>
             </div>
           </template>
-          <el-table :data="recentNotices" style="width: 100%" :show-header="false">
-            <el-table-column prop="notice_title" label="标题">
-              <template #default="scope">
-                <el-link type="primary" @click="viewNotice(scope.row)">{{ scope.row.notice_title }}</el-link>
-              </template>
-            </el-table-column>
-            <el-table-column prop="create_time" label="发布时间" width="180" />
-          </el-table>
+          <div class="notice-list">
+            <div v-if="recentNotices.length === 0" class="empty-notice">
+              <el-empty description="暂无通知" :image-size="80" />
+            </div>
+            <el-timeline v-else>
+              <el-timeline-item 
+                v-for="notice in recentNotices" 
+                :key="notice.notice_id"
+                :timestamp="notice.create_time"
+                placement="top"
+              >
+                <div class="notice-item" @click="viewNotice(notice)">
+                  <h4>{{ notice.notice_title }}</h4>
+                  <el-tag :type="getTagType(notice.type)" size="small" style="margin-top: 8px">{{ notice.type }}</el-tag>
+                </div>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <span class="header-title">待办事项</span>
+            </div>
+          </template>
+          <div class="todo-list">
+            <el-empty description="暂无待办事项" :image-size="100" />
+          </div>
         </el-card>
         
-        <!-- 公告详情弹窗 -->
-        <el-dialog
-          v-model="dialogVisible"
-          :title="currentNotice.notice_title"
-          width="60%"
-          top="50px"
-        >
-          <div style="margin-bottom: 20px;">
-            <el-tag :type="getTagType(currentNotice.type)" style="margin-right: 15px;">{{ currentNotice.type }}</el-tag>
-            <span >{{ currentNotice.create_time }}</span>
-          </div>
-          <div class="notice-content" v-html="currentNotice.content"></div>
-          <template #footer>
-              <el-button @click="dialogVisible = false">关闭</el-button>
-          </template>
-        </el-dialog>
-      </el-col>
-      <el-col :span="12">
-        <el-card>
+        <el-card shadow="hover" style="margin-top: 24px">
           <template #header>
             <div class="card-header">
-              <span>待办事项</span>
+              <span class="header-title">快速操作</span>
             </div>
           </template>
-          <el-empty description="暂无待办事项" />
+          <div class="quick-actions">
+            <el-button type="success" plain @click="goToDefenseList">
+              <el-icon><ChatLineRound /></el-icon>
+              答辩安排
+            </el-button>
+            <el-button type="info" plain @click="goToScoreList">
+              <el-icon><Trophy /></el-icon>
+              成绩查询
+            </el-button>
+          </div>
         </el-card>
       </el-col>
     </el-row>
+    
+    <!-- 公告详情弹窗 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="currentNotice.notice_title"
+      width="80%"
+      top="50px"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
+    >
+      <div class="notice-header">
+        <el-tag :type="getTagType(currentNotice.type)">{{ currentNotice.type }}</el-tag>
+        <span class="notice-time">{{ currentNotice.create_time }}</span>
+      </div>
+      <div class="notice-content" v-html="currentNotice.content"></div>
+      <template #footer>
+          <el-button @click="dialogVisible = false" type="primary" size="large">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { Document, User, List, ChatLineRound } from '@element-plus/icons-vue'
+import { ref, onMounted, markRaw } from 'vue'
+import { useRouter } from 'vue-router'
+import { Document, User, UserFilled, List, ChatLineRound, Trophy } from '@element-plus/icons-vue'
 import { getStudentList } from '@/api/student'
 import { getTeacherList } from '@/api/teacher'
 import { getPaperList } from '@/api/paper'
@@ -77,30 +115,32 @@ import { getDefenseList } from '@/api/defense'
 import { getNoticeList, getNoticeDetail } from '@/api/notice'
 import { ElMessage } from 'element-plus'
 
+const router = useRouter()
+
 const statistics = ref([
   {
     title: '学生总数',
     value: 0,
-    icon: 'User',
-    color: '#409EFF'
+    icon: markRaw(User),
+    color: 'var(--primary-color)'
   },
   {
     title: '教师总数',
     value: 0,
-    icon: 'UserFilled',
-    color: '#67C23A'
+    icon: markRaw(UserFilled),
+    color: 'var(--success-color)'
   },
   {
     title: '论文总数',
     value: 0,
-    icon: 'Document',
-    color: '#E6A23C'
+    icon: markRaw(Document),
+    color: 'var(--warning-color)'
   },
   {
     title: '待答辩',
     value: 0,
-    icon: 'ChatLineRound',
-    color: '#F56C6C'
+    icon: markRaw(ChatLineRound),
+    color: 'var(--danger-color)'
   }
 ])
 
@@ -175,6 +215,15 @@ const viewNotice = async (notice) => {
   }
 }
 
+// 快速操作方法
+const goToDefenseList = () => {
+  router.push('/defense-plan/list')
+}
+
+const goToScoreList = () => {
+  router.push('/score/list')
+}
+
 onMounted(() => {
   loadStatistics()
 })
@@ -182,42 +231,171 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .dashboard {
+  .page-header {
+    margin-bottom: 8px;
+    
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+  }
+  
   .stat-card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    height: 100%;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    
     .stat-content {
       display: flex;
       align-items: center;
+      padding: 16px 0;
       
       .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 10px;
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        margin-right: 15px;
+        margin-right: 24px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
       }
       
       .stat-info {
         flex: 1;
         
         .stat-value {
-          font-size: 28px;
-          font-weight: bold;
-          color: #303133;
-          margin-bottom: 5px;
+          font-size: 36px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 12px;
+          line-height: 1;
         }
         
         .stat-title {
-          font-size: 14px;
-          color: #909399;
+          font-size: 18px;
+          color: var(--text-secondary);
+          font-weight: 500;
         }
       }
     }
   }
   
   .card-header {
-    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+  
+  // 通知列表
+  .notice-list {
+    .empty-notice {
+      padding: 40px 0;
+    }
+    
+    :deep(.el-timeline) {
+      padding: 0;
+      
+      .el-timeline-item {
+        margin-bottom: 24px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .el-timeline-item__timestamp {
+          font-size: 14px;
+          color: var(--text-secondary);
+          margin-bottom: 8px;
+        }
+        
+        .el-timeline-item__node {
+          width: 12px;
+          height: 12px;
+          background-color: var(--primary-color);
+        }
+      }
+    }
+    
+    .notice-item {
+      cursor: pointer;
+      padding: 20px;
+      background-color: var(--bg-tertiary);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: var(--bg-secondary);
+        transform: translateY(-2px);
+      }
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  // 待办事项
+  .todo-list {
+    padding: 40px 0;
+  }
+  
+  // 快速操作
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .el-button {
+      width: 100%;
+      height: 48px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+      }
+    }
+  }
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+  
+  .notice-time {
+    margin-left: 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
   }
 }
 
@@ -225,5 +403,43 @@ onMounted(() => {
   min-height: 300px;
   line-height: 1.8;
   font-size: 16px;
+  color: var(--text-regular);
+  padding: 0 8px;
+}
+
+// 响应式设计
+@media (max-width: 1200px) {
+  .dashboard {
+    .el-row {
+      .el-col {
+        &:span-16,
+        &:span-8 {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    .page-header {
+      h1 {
+        font-size: 24px;
+      }
+      
+      p {
+        font-size: 14px;
+      }
+    }
+    
+    .el-row {
+      .el-col {
+        &:span-6 {
+          width: 50%;
+        }
+      }
+    }
+  }
 }
 </style>

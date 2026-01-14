@@ -3,19 +3,20 @@ import { AxiosPromise } from 'axios'
 
 // 学生信息接口
 interface StudentInfo {
-  student_users_id: number
+  student_id: number
+  user_id: number
   student_name: string
+  student_no: string
   student_gender: string
   student_age: string
-  examine_state: string
-  recommend: number
-  user_id: number
-  create_time: string
-  update_time: string
-  student_no: string
   class_name: string
+  major_name: string
+  grade: string
   phone: string
   email: string
+  state: number
+  create_time: string
+  update_time: string
 }
 
 // 学生列表查询参数
@@ -25,6 +26,9 @@ interface StudentListParams {
   student_name?: string
   student_no?: string
   class_name?: string
+  major_name?: string
+  grade?: string
+  state?: number
 }
 
 /**
@@ -87,5 +91,34 @@ export function deleteStudent(id: number): AxiosPromise<any> {
   return request({
     url: `/student/${id}`,
     method: 'delete'
+  })
+}
+
+/**
+ * 导入学生信息
+ */
+export function importStudents(file: File): AxiosPromise<any> {
+  const formData = new FormData()
+  formData.append('file', file)
+  
+  return request({
+    url: '/student/import',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+/**
+ * 导出学生信息
+ */
+export function exportStudents(params?: StudentListParams): AxiosPromise<Blob> {
+  return request({
+    url: '/student/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
   })
 }

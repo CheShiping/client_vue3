@@ -3,7 +3,7 @@
     <div class="login-box">
       <div class="login-header">
         <img src="/tubiao.svg" alt="Logo" class="logo-img" />
-        <h2>成职院答辩管理系统</h2>
+        <h2>答辩管理系统</h2>
         <p>欢迎登录</p>
       </div>
       
@@ -111,7 +111,7 @@ const handleLogin = async () => {
           ElMessage.success('登录成功')
           
           // 跳转到重定向页面或首页
-          const redirect = route.query.redirect || '/dashboard' // 默认跳转到仪表盘而不是根路径
+          const redirect = route.query.redirect || '/dashboard' // 登录成功后跳转到dashboard
           router.push(redirect)
         } else if (res.error) {
           ElMessage.error(res.error.message || '登录失败')
@@ -139,48 +139,166 @@ const handleLogin = async () => {
   background-image: url('../../../public/banner2.jpg');
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(22, 93, 255, 0.1) 0%, rgba(255, 255, 255, 0.5) 100%);
+    z-index: 1;
+  }
 }
 
 .login-box {
-  width: 400px;
-  padding: 40px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  width: 440px;
+  padding: 56px;
+  background: var(--bg-primary);
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 48px;
   
   .logo-img {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 15px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+    border-radius: 20px;
+    padding: 12px;
+    background: rgba(22, 93, 255, 0.1);
   }
   
   h2 {
-    font-size: 24px;
-    color: #303133;
-    margin-bottom: 10px;
+    font-size: 32px;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-weight: 700;
+    line-height: 1.2;
   }
   
   p {
-    font-size: 14px;
-    color: #909399;
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 400;
   }
 }
 
 .login-form {
   .login-button {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 32px;
+    height: 52px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(22, 93, 255, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  :deep(.el-input) {
+    margin-bottom: 28px;
+    
+    .el-input__wrapper {
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      height: 52px;
+      padding: 0 20px;
+      
+      &:hover {
+        box-shadow: 0 4px 16px rgba(22, 93, 255, 0.12);
+      }
+      
+      &.is-focus {
+        box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.2);
+        border-color: var(--primary-color);
+      }
+      
+      .el-input__inner {
+        font-size: 16px;
+        height: 52px;
+        line-height: 52px;
+        color: var(--text-primary);
+      }
+      
+      .el-input__prefix {
+        color: var(--text-secondary);
+      }
+    }
+  }
+  
+  :deep(.el-form-item__error) {
+    color: var(--danger-color);
+    font-size: 14px;
   }
 }
 
-.login-footer {
-  text-align: right;
-  margin-top: 10px;
+// 响应式设计
+@media (max-width: 768px) {
+  .login-box {
+    width: 90%;
+    max-width: 380px;
+    padding: 40px 32px;
+    margin: 0 20px;
+  }
+  
+  .login-header {
+    margin-bottom: 32px;
+    
+    .logo-img {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      font-size: 24px;
+    }
+    
+    p {
+      font-size: 16px;
+    }
+  }
+  
+  .login-form {
+    .login-button {
+      height: 48px;
+      font-size: 16px;
+    }
+    
+    :deep(.el-input) {
+      .el-input__wrapper {
+        height: 48px;
+        
+        .el-input__inner {
+          height: 48px;
+          line-height: 48px;
+        }
+      }
+    }
+  }
 }
 </style>
 

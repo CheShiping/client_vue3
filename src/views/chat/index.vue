@@ -283,7 +283,7 @@ const handleQuickQuestion = (question: string) => {
     class="ai-assistant-modal"
     :style="transformStyle"
     :z-index="9998"
-  @closed="handleClose"
+    @closed="handleClose"
   >
     <div class="chat-wrapper">
       <!-- 对话区 - header -->

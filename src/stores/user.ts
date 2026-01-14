@@ -17,6 +17,8 @@ interface UserInfo {
   user_group: string
   user_admin: string
   state: number
+  create_time: string
+  update_time: string
 }
 
 // 从localStorage获取用户信息
@@ -67,9 +69,11 @@ export const useUserStore = defineStore('user', () => {
     avatar: '/img/avatar.png',
     phone: '',
     email: '',
-    user_group: '',
-    user_admin: '',
-    state: 0
+    user_group: 'student', // 默认用户组为学生
+    user_admin: '0',
+    state: 1,
+    create_time: '',
+    update_time: ''
   })
   
   // 添加当前学生ID状态
@@ -112,14 +116,23 @@ export const useUserStore = defineStore('user', () => {
     try {
       if (token.value) {
         const response = await getUserInfo()
-        if (response && response.data) {
-          setUserInfo(response.data)
+        console.log('获取用户信息响应:', response)
+        
+        // 检查响应是否包含必要的用户信息字段
+        if (response && response.result && response.result.obj) {
+          // 使用响应中的obj字段作为用户信息
+          setUserInfo(response.result.obj)
+        } else {
+          console.warn('获取的用户信息格式不正确:', response)
+          // 使用默认用户信息，避免系统崩溃
+          setUserInfo({...userInfo.value})
         }
       }
     } catch (error) {
       console.error('获取用户信息失败:', error)
       // 如果获取用户信息失败，可能token已失效，清除本地token
       logout()
+      throw error // 抛出错误，使调用方可以捕获
     } finally {
       // 请求完成，重置状态
       fetchingUserInfo.value = false
@@ -137,7 +150,9 @@ export const useUserStore = defineStore('user', () => {
       email: '',
       user_group: '',
       user_admin: '',
-      state: 0
+      state: 0,
+      create_time: '',
+      update_time: ''
     }
     removeToken()
     clearUserInfoStorage()

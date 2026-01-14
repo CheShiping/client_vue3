@@ -12,15 +12,6 @@ const STORAGE_KEYS = {
   TOPICS: 'thesis_management_topics'
 }
 
-// 默认数据
-const DEFAULT_DATA = {
-  students: [],
-  teachers: [],
-  defenses: [],
-  papers: [],
-  scores: [],
-  topics: []
-}
 
 /**
  * 从localStorage获取数据
